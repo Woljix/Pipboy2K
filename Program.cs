@@ -7,8 +7,6 @@ namespace Pipboy2K
 {
     internal class Program
     {
-        public static Font DisplayFont = Raylib.LoadFont("resources/fonts/TechMono.ttf");
-
         static Rectangle bounds = new Rectangle(0, 0, 720, 720);
 
         [STAThread]

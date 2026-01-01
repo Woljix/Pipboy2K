@@ -20,3 +20,4 @@ C:\Users\Woljix\Documents\VSCodeProjects\Pipboy2K\bin\Debug\net10.0\runtimes\win
 C:\Users\Woljix\Documents\VSCodeProjects\Pipboy2K\bin\Debug\net10.0\runtimes\win-x86\native\raylib.dll
 C:\Users\Woljix\Documents\VSCodeProjects\Pipboy2K\obj\Debug\net10.0\Pipboy2K.csproj.AssemblyReference.cache
 C:\Users\Woljix\Documents\VSCodeProjects\Pipboy2K\obj\Debug\net10.0\Pipboy2K.csproj.Up2Date
+C:\Users\Woljix\Documents\VSCodeProjects\Pipboy2K\obj\Debug\net10.0\Pipboy2K.sourcelink.json

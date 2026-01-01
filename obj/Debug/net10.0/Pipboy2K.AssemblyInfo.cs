@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Pipboy2K")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+73f77dfbafc1093e3c0748cc25b8dfc2728c6924")]
 [assembly: System.Reflection.AssemblyProductAttribute("Pipboy2K")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Pipboy2K")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
