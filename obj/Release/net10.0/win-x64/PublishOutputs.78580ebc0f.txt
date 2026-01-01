@@ -1,0 +1,2 @@
+C:\Users\Woljix\Documents\VSCodeProjects\Pipboy2K\bin\Release\net10.0\win-x64\publish\Pipboy2K.exe
+C:\Users\Woljix\Documents\VSCodeProjects\Pipboy2K\bin\Release\net10.0\win-x64\publish\raylib.dll
