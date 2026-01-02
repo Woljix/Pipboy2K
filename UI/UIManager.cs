@@ -6,11 +6,11 @@ public class UIManager
 {
     private List<UIWidget> widgets = new List<UIWidget>();
 
-    private Rectangle _screenBounds;
+    private GameContainer GC;
 
-    public UIManager(ref Rectangle screenBounds)
+    public UIManager(GameContainer gameContainer)
     {
-        _screenBounds = screenBounds;
+        GC = gameContainer;
     }
 
     public async void Initialize()
@@ -37,9 +37,9 @@ public class UIManagerBuilder
 {
     private UIManager uiManager;
 
-    public UIManagerBuilder(ref Rectangle screenBounds)
+    public UIManagerBuilder(GameContainer gc)
     {
-        uiManager = new UIManager(ref screenBounds);
+        uiManager = new UIManager(gc);
     }
 
     public UIManager Build()

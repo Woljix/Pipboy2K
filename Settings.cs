@@ -7,6 +7,7 @@ public class Settings
     private static Settings _singleton;
 
     public static Font RobotoBFont;
+    public static Font RobotoRFont;
 
     public static void Initialize()
     {
@@ -21,6 +22,7 @@ public class Settings
         }
 
         RobotoBFont = _loadAndFilterFont("resources/fonts/RobotoCondensed-Bold.ttf");
+        RobotoRFont = _loadAndFilterFont("resources/fonts/RobotoCondensed-Regular.ttf");
     }
 
     // private Settings()

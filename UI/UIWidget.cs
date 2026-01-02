@@ -4,11 +4,13 @@ namespace Pipboy2K.UI;
 public abstract class UIWidget
 {
     // Area that the widget occupies, and is allowed to draw in.
-    public Raylib_cs.Rectangle _bounds;
+    //public Raylib_cs.Rectangle _bounds;
 
-    public UIWidget(ref Rectangle bounds)
+    public GameContainer GC;
+
+    public UIWidget(GameContainer gc)
     {
-        _bounds = bounds;
+        GC = gc;
     }
 
     // public UIWidget(Rectangle bounds)
@@ -33,7 +35,7 @@ public abstract class UIWidget
 
     public Rectangle Bounds
     {
-        get { return _bounds; }
-        set { _bounds = value; }
+        get { return GC.Bounds;}
+        set { GC.Bounds = value; }
     }
 }

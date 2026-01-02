@@ -2,16 +2,17 @@
 using Raylib_cs;
 
 using Pipboy2K.UI;
+using Pipboy2K.Modules;
 
 namespace Pipboy2K
 {
     internal class Program
     {
-        static Rectangle bounds = new Rectangle(0, 0, 720, 720);
-
         [STAThread]
         public static void Main(string[] args)
         {
+            GameContainer GC = new GameContainer();
+
             Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);
 
             Raylib.InitWindow(720, 720, "Pip-boy 2000 | In-dev");
@@ -20,12 +21,10 @@ namespace Pipboy2K
             // Must be run before drawing inorder for the fonts to be prepared.
             Settings.Initialize();
 
-            UIManager ui = new UIManager(ref bounds);
+            UIManager ui = new UIManager(GC);
 
-            TabbedView tabbedView = new TabbedView(ref bounds);
-            // tabbedView.AddTab(new Tab("Stats"));
-            // tabbedView.AddTab(new Tab("Inventory"));
-            // tabbedView.AddTab(new Tab("Data"));
+            // Top Menu
+            TabbedView tabbedView = new TabbedView(GC);
 
             ui.AddWidget(tabbedView);
 
@@ -33,11 +32,16 @@ namespace Pipboy2K
 
             while (!Raylib.WindowShouldClose())
             {
-                bounds = new Rectangle(0, 0, Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
+                GC.Bounds = new Rectangle(0, 0, Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
 
                 if (Raylib.IsKeyPressed(KeyboardKey.Tab))
                 {
                     tabbedView.MoveNextTab();
+                }
+
+                if (Raylib.IsKeyPressed(KeyboardKey.LeftControl))
+                {
+                    tabbedView.MoveNextSubTab();
                 }
 
                 Raylib.BeginDrawing();
@@ -64,16 +68,28 @@ namespace Pipboy2K
         }
     }
 
-    public class TopMenu : UIWidget
+    // Probably temporary, as i want to test something.
+    public class GameContainer
     {
-        public TopMenu(ref Rectangle bounds) : base(ref bounds)
-        {
+        public Rectangle Bounds;
 
-        }
-
-        public override void Update()
+        public GameContainer()
         {
-            Raylib.DrawRectangle(0, 0, 720, 50, Color.DarkGray);
+            Bounds = new Rectangle();
         }
     }
+
+
+    // public class TopMenu : UIWidget
+    // {
+    //     public TopMenu(ref Rectangle bounds) : base(bounds)
+    //     {
+
+    //     }
+
+    //     public override void Update()
+    //     {
+    //         Raylib.DrawRectangle(0, 0, 720, 50, Color.DarkGray);
+    //     }
+    // }
 }
