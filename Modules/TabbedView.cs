@@ -11,7 +11,7 @@ public class TabbedView : UIWidget
     private Rectangle viewBounds;
 
     #region GREEN TOP LINE RENDER
-    private int _lineOffset = 90;
+    private int _lineOffset = 45;
     private int _lineThickness = 4;
     #endregion
 
@@ -49,16 +49,15 @@ public class TabbedView : UIWidget
                 .AddSubTabByName("STATIONS")
                 .Build());
 
-        // tabs.Add(
-        //     new TabBuilder("CONFIG", gc)
-        //         .AddSubTabByName("TEST1")
-        //         .Build());
+        tabs.Add(
+            new TabBuilder("CONFIG", gc)
+                .AddSubTabByName("TEST1")
+                .Build());
 
         _cacheTabNames();
 
         // Precalculate width of text, and use that to center tabs.
-
-        _tabWidth = CalculateWidthOfTabs(_cachedTabNames, Settings.RobotoBFont, 38);
+        _tabWidth = CalculateWidthOfTabs(_cachedTabNames, GC.RobotoBFont, 38);
 
         Console.WriteLine($"Tab Width: {_tabWidth}");
     }
@@ -74,7 +73,6 @@ public class TabbedView : UIWidget
             float xPos = textSize.X + TabSpacing;
 
             _width += xPos;
-           // Raylib.DrawTextEx(Settings.RobotoBFont, tabName, new Vector2(xPos, Bounds.Y + 30), 46, 1.0f, Color.Green);
         }
 
         return _width;
@@ -87,25 +85,19 @@ public class TabbedView : UIWidget
 
     public override void Render()
     {
-        // Beware of this!!!
-        //Bounds = new Rectangle(0, 0, Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
-
         float _thiccnessOffset = MathF.Round(_lineThickness / 2.0f);
 
         Vector2 centerOfBounds = new Vector2(Bounds.X + (Bounds.Width / 2), Bounds.Y + (Bounds.Height / 2));
-
-        // Draw Black background
-        Raylib.DrawRectangleRec(Bounds, Color.Black);
 
         int _currentOffset = (int)(centerOfBounds.X - (_tabWidth / 2));
 
         for (int i = 0; i < _cachedTabNames.Count; i++)
         {
             string tabName = _cachedTabNames[i];
-            Vector2 textSize = Raylib.MeasureTextEx(Settings.RobotoBFont, tabName, 38, 1.0f);
+            Vector2 textSize = Raylib.MeasureTextEx(GC.RobotoBFont, tabName, 38, 1.0f);
             float xPos = Bounds.X + _currentOffset;
 
-            Raylib.DrawCircle((int)xPos, 0, 5, Color.Red);
+            //Raylib.DrawCircle((int)xPos, 0, 5, Color.Red);
 
             _currentOffset += (int)(textSize.X + TabSpacing);
 
@@ -186,7 +178,7 @@ public class TabbedView : UIWidget
                 }
                 else
                 {
-                    _subTabWidth = CalculateWidthOfTabs(tabs[i].cachedSubTabNames, Settings.RobotoRFont, 38);
+                    _subTabWidth = CalculateWidthOfTabs(tabs[i].cachedSubTabNames, GC.RobotoRFont, 38);
                     _subTabTextWidths[tabName] = _subTabWidth;
 
                     _subTabWidth = _subTabTextWidths[tabName];
@@ -197,14 +189,14 @@ public class TabbedView : UIWidget
                 for (int j = 0; j < tabs[i].cachedSubTabNames.Count; j++)
                 {
                     string subTabName = tabs[i].cachedSubTabNames[j];
-                    Vector2 subTabTextSize = Raylib.MeasureTextEx(Settings.RobotoRFont, subTabName, 38, 1.0f);
+                    Vector2 subTabTextSize = Raylib.MeasureTextEx(GC.RobotoRFont, subTabName, 38, 1.0f);
                     float subTabXPos = Bounds.X + _subTabOffset;
 
                     _subTabOffset += (int)(subTabTextSize.X + TabSpacing);
 
                     Color _color = (j == tabs[i].currentTabIndex) ? Color.Green : Color.DarkGreen;
 
-                    Raylib.DrawTextEx(Settings.RobotoRFont, subTabName, new Vector2(subTabXPos, Bounds.Y + _lineOffset + 10), 38, 1.0f, _color);
+                    Raylib.DrawTextEx(GC.RobotoRFont, subTabName, new Vector2(subTabXPos, Bounds.Y + _lineOffset + _thiccnessOffset), 38, 1.0f, _color);
                 }
 
 
@@ -246,7 +238,7 @@ public class TabbedView : UIWidget
                     */
             }
 
-            Raylib.DrawTextEx(Settings.RobotoBFont, tabName, new Vector2(xPos, Bounds.Y + textSize.Y + (textSize.Y / 3)), 38, 1.0f, Color.Green);
+            Raylib.DrawTextEx(GC.RobotoBFont, tabName, new Vector2(xPos, Bounds.Y + _lineOffset - textSize.Y - _thiccnessOffset), 38, 1.0f, Color.Green);
         }
 
         //var lol = Raylib.MeasureTextEx(Settings.RobotoBFont, "STAT", 46, 1.0f) + Raylib.MeasureTextEx(Settings.RobotoBFont, "INVENTORY", 46, 1.0f);
@@ -314,12 +306,27 @@ public class TabbedView : UIWidget
             selectedTabIndex = 0;
     }
 
+    public void MovePrevTab()
+    {
+        selectedTabIndex--;
+        if (selectedTabIndex < 0)
+            selectedTabIndex = tabs.Count - 1;
+    }
+
     public void MoveNextSubTab()
     {
         Tab currentTab = tabs[selectedTabIndex];
         currentTab.currentTabIndex++;
         if (currentTab.currentTabIndex >= currentTab.subTabs.Count)
             currentTab.currentTabIndex = 0;
+    }
+
+    public void MovePrevSubTab()
+    {
+        Tab currentTab = tabs[selectedTabIndex];
+        currentTab.currentTabIndex--;
+        if (currentTab.currentTabIndex < 0)
+            currentTab.currentTabIndex = currentTab.subTabs.Count - 1;
     }
 
     private void _cacheTabNames()
@@ -331,6 +338,9 @@ public class TabbedView : UIWidget
             _cachedTabNames.Add(tab.Name.ToUpper());
         }
     }
+
+
+
 }
 
 public class Tab : SubTab

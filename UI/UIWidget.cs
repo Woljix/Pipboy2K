@@ -8,30 +8,18 @@ public abstract class UIWidget
 
     public GameContainer GC;
 
+    // TODO: Handle "Bounds" calculation once, then store it. Update it on resize events.
+
     public UIWidget(GameContainer gc)
     {
         GC = gc;
     }
 
-    // public UIWidget(Rectangle bounds)
-    // {
-    //     _bounds = bounds;
-    // }
+    public virtual void Update() { }
 
-    public virtual void Update()
-    {
+    public virtual void Prerender() { }
 
-    }
-
-    public virtual void Prerender()
-    {
-
-    }
-
-    public virtual void Render()
-    {
-
-    }
+    public virtual void Render() { }
 
     public Rectangle Bounds
     {

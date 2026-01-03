@@ -23,11 +23,18 @@ public class UIManager
         widgets.Add(widget);
     }
 
-    public async void Process()
+    public async void Update()
     {
         foreach (UIWidget widget in widgets)
         {
             widget.Update();
+        }
+    }
+
+    public async void Render()
+    {
+        foreach (UIWidget widget in widgets)
+        {
             widget.Render();
         }
     }

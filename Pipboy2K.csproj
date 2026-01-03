@@ -9,13 +9,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Raylib-cs" Version="7.0.2" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <OutputType>WinExe</OutputType>
+  </PropertyGroup>
+
+
+  <ItemGroup>
     <None Update="Resources\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Raylib-cs" Version="7.0.2" />
-  </ItemGroup>
 
 </Project>
