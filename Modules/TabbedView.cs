@@ -85,6 +85,9 @@ public class TabbedView : UIWidget
 
     public override void Render()
     {
+        if (GC.headerStatus == GameContainer.HeaderStatus.Hidden)
+            return;
+
         float _thiccnessOffset = MathF.Round(_lineThickness / 2.0f);
 
         Vector2 centerOfBounds = new Vector2(Bounds.X + (Bounds.Width / 2), Bounds.Y + (Bounds.Height / 2));
@@ -201,41 +204,6 @@ public class TabbedView : UIWidget
 
 
                 #endregion
-
-                    /*
-                    Vector2 endOfStartLine = new Vector2(xPos - 3, Bounds.Y + _lineOffset);
-
-                Raylib.DrawLineEx(
-                    new Vector2(Bounds.X, Bounds.Y + _lineOffset),
-                    endOfStartLine,
-                    3,
-                    Color.Green);
-
-                Raylib.DrawLineEx(
-                    new Vector2(xPos - 5, Bounds.Y + _lineOffset + 2),
-                    new Vector2(xPos - 5, Bounds.Y + _lineOffset - 18 - textSize.Y),
-                    3,
-                    Color.Blue);
-
-                Raylib.DrawLineEx(
-                    new Vector2(xPos - 8, Bounds.Y + _lineOffset - 18 - textSize.Y),
-                    new Vector2(xPos + textSize.X + 8, Bounds.Y + _lineOffset - 18 - textSize.Y),
-                    3,
-                    Color.Red);
-
-                Raylib.DrawLineEx(
-                    new Vector2(xPos + textSize.X + 6, Bounds.Y + _lineOffset - 18 - textSize.Y),
-                    new Vector2(xPos + textSize.X + 6, Bounds.Y + _lineOffset + 2),
-                    3,
-                    Color.White);
-
-                Raylib.DrawLineEx(
-                    new Vector2(xPos + textSize.X + 6, Bounds.Y + _lineOffset),
-                    new Vector2(Bounds.Width, Bounds.Y + _lineOffset),
-                    3,
-                    Color.Green);
-
-                    */
             }
 
             Raylib.DrawTextEx(GC.RobotoBFont, tabName, new Vector2(xPos, Bounds.Y + _lineOffset - textSize.Y - _thiccnessOffset), 38, 1.0f, Color.Green);
@@ -299,8 +267,20 @@ public class TabbedView : UIWidget
         //     Color.White);
     }
 
+    public SubTab GetCurrentSubTab()
+    {
+        Tab currentTab = tabs[selectedTabIndex];
+
+        SubTab currentSubTab = currentTab.subTabs[currentTab.currentTabIndex];
+
+        return currentSubTab;
+    }
+
     public void MoveNextTab()
     {
+        if (tabs[selectedTabIndex] != null)
+            tabs[selectedTabIndex].currentTabIndex = 0;
+
         selectedTabIndex++;
         if (selectedTabIndex >= tabs.Count)
             selectedTabIndex = 0;
@@ -308,6 +288,9 @@ public class TabbedView : UIWidget
 
     public void MovePrevTab()
     {
+        if (tabs[selectedTabIndex] != null)
+            tabs[selectedTabIndex].currentTabIndex = 0;
+
         selectedTabIndex--;
         if (selectedTabIndex < 0)
             selectedTabIndex = tabs.Count - 1;

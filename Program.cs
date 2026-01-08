@@ -3,6 +3,8 @@ using Raylib_cs;
 
 using Pipboy2K.UI;
 using Pipboy2K.Modules;
+using Pipboy2K.Core;
+using System.Numerics;
 
 namespace Pipboy2K
 {
@@ -45,6 +47,7 @@ namespace Pipboy2K
 
             Raylib.InitWindow(Settings.Instance.WindowWidth, Settings.Instance.WindowHeight, "Pip-boy 2000 MK VI | In-dev");
             Raylib.SetTargetFPS(Settings.Instance.TargetFPS);
+
             // GC has to be initialized after Raylib.InitWindow, because it loads fonts that require a valid Raylib context.
             GameContainer GC = new GameContainer();
 
@@ -54,6 +57,7 @@ namespace Pipboy2K
             TabbedView tabbedView = new TabbedView(GC);
             ui.AddWidget(tabbedView);
 
+            // Bottom Menu
             Status statusModule = new Status(GC);
             ui.AddWidget(statusModule);
 
@@ -67,12 +71,29 @@ namespace Pipboy2K
 
             _onResize();
 
+            Texture2D boy = Raylib.LoadTexture("resources/sprites/vaultboy_thumbsup_anim.png");
+            Raylib.GenTextureMipmaps(ref boy);
+
+            int boyIndex = 0;
+
+            CanvasSprite entity = new CanvasSprite(delegate(CanvasSprite ent)
+            {
+                Vector2 _startPos = new Vector2(0, 0);
+
+                ent.DrawLineEx(_startPos + new Vector2(0, 100), _startPos + new System.Numerics.Vector2(100, 0), 4, Color.Red);
+                ent.DrawRectangleRec(ent.Rect, Color.Red);
+                //Console.WriteLine(ent.Bounds.ToString());
+            });
+
             while (!Raylib.WindowShouldClose())
             {
                 if (Raylib.IsWindowResized())
                 {
                     _onResize();
                 }
+
+                if (Raylib.IsKeyPressed(KeyboardKey.Space))
+                    entity.Position += new Vector2(10, 0);
 
                 if (Raylib.IsKeyPressed(KeyboardKey.D))
                 {
@@ -94,6 +115,26 @@ namespace Pipboy2K
                     tabbedView.MovePrevSubTab();
                 }
 
+                if (Raylib.IsKeyPressed(KeyboardKey.Up))
+                {
+                    boyIndex++;
+
+                    if (boyIndex > 7)
+                    {
+                        boyIndex = 0;
+                    }
+                }
+
+                if (Raylib.IsKeyPressed(KeyboardKey.Down))
+                {
+                    boyIndex--;
+
+                    if (boyIndex < 0)
+                    {
+                        boyIndex = 7;
+                    }
+                }
+
                 Raylib.BeginDrawing();
 
                 // Draw Black background
@@ -107,6 +148,15 @@ namespace Pipboy2K
                     Raylib.DrawLine(0, i, Raylib.GetScreenWidth(), i, new Color(0, 0, 0, 30));
                     //Raylib.DrawLine(0, i - 2, Raylib.GetScreenWidth(), i, new Color(0, 0, 0, 25));
                 }
+                Rectangle boyRect = new Rectangle(169 * boyIndex, 0, 169, 240);
+
+                Raylib.DrawTextureRec(boy, boyRect, new System.Numerics.Vector2(200, 200), Color.White);
+                //Raylib.DrawTextureNPatch()
+
+                //Raylib.DrawText(tabbedView.GetCurrentSubTab().Name, 200, 400, 18, Color.White);
+
+                entity.AttemptDraw();
+                entity.OutputRender();
 
                 //Raylib.DrawRectangle(0, 0, 720, 250, Color.Black);
 
@@ -144,8 +194,8 @@ namespace Pipboy2K
             DATA
         }
 
-        public Font RobotoBFont;
-        public Font RobotoRFont;
+        public readonly Font RobotoBFont;
+        public readonly Font RobotoRFont;
 
         public Rectangle Bounds;
 

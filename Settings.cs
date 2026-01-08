@@ -39,6 +39,7 @@ public sealed class Settings
     [JsonInclude]
     public int TargetFPS = 60;
 
+    [JsonInclude]
     public bool Fullscreen = false;
 
     public void Load()

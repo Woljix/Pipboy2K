@@ -1,4 +1,6 @@
 using Raylib_cs;
+using Pipboy2K.Core;
+
 namespace Pipboy2K.UI;
 
 public abstract class UIWidget
