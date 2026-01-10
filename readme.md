@@ -2,6 +2,8 @@
 A Pip-boy 2000 MK VI recreation from Fallout 76, written in C# using RaylibCs as the underlying renderer.
 
 Greatly inspired by zapwizard's [pypboy](https://github.com/zapwizard/pypboy).
+
+**WARNING: THIS IS INCREDEBLY UNUSABLE, IT IS A HOBBY PROJECT OF MINE - IF YOU SOMEHOW STUMBLE UPON THIS THEN DON'T EXPECT ANYTHING USEFUL FROM IT.**
 ## Purpose
 This is designed to be used on a physical Pip-boy prop that i have yet to make, that uses a Raspberry Pi SBC (or similiar) as the brains
 
@@ -14,8 +16,15 @@ Building with the `Release` configuration, will target AoT compilation. This may
 On x86-64 Windows and Linux, you should just be able to build as normal. As RaylibCs includes bindings for these.
 
     git clone https://github.com/Woljix/Pipboy2K.git
-    cd Pipboy2K
+    cd Pipboy2K/Pipboy2K/
     dotnet build -c Release
+
+The [NUKE](https://nuke.build/) build systen can now also be used to build the project. More information later when i feel like it.
+
+    #dotnet tool install Nuke.GlobalTool --global
+    git clone https://github.com/Woljix/Pipboy2K.git
+    cd Pipboy2K
+    nuke build
 
 ### Linux (arm64)
 
@@ -35,4 +44,4 @@ This will produce a `libraylib.so` (and some other .so files, but use whichever)
 
 ## TODO
 * Improve `readme.md` with better explanation.
-* Figure out how to make a build script that can clone and build raylib for linux-arm64 automatically.
+* ~~Figure out how to make a build script that can clone and build raylib for linux-arm64 automatically.~~ Untested NUKE script added.
