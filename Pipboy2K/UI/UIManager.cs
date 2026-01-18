@@ -11,21 +11,26 @@ public class UIManager
 
     public UIManager() { }
 
+    public T Instantiate<T>() where T : UIWidget, new()
+    {
+       T _widget = new T();
+       _widget.UI = this;
+       Widgets.Add(_widget);
+       return _widget;
+    }
+
     public void AddWidget(UIWidget widget)
     {
         Widgets.Add(widget);
     }
 
-    public void Update()
+    public void Tick()
     {
         foreach (UIWidget widget in Widgets)
         {
             widget.Update();
         }
-    }
 
-    public void Render()
-    {
         foreach (UIWidget widget in Widgets)
         {
             widget.AttemptDraw();

@@ -17,13 +17,24 @@ public abstract class RawSprite
 {
     private Vector2 min = Vector2.Zero;
     private Vector2 max = Vector2.Zero;
-    private bool active = false;
+    protected bool active = false;
     private bool _ready = false;
 
+    /// <summary>
+    /// Size of the sprite determited by the rendering calls.
+    /// </summary>
     public Vector2 SpriteSize {get; private set; } = Vector2.Zero;
     public Vector2 SpritePosition = Vector2.Zero;
 
     public Rectangle SpriteRect { get { return new Rectangle(SpritePosition, SpriteSize); }}
+
+    public (Vector2, Vector2) GetMinMax
+    {
+        get
+        {
+            return (min, max);
+        }
+    }
 
     //public Rectangle SizeRect = new Rectangle();
 
@@ -115,7 +126,7 @@ public abstract class RawSprite
         // Do something else here?
         Draw();
 
-        if (GC.DebugMode)
+        if (GS.DebugMode)
             Raylib.DrawRectangleLinesEx(SpriteRect, 2, Color.Red);
     }
 

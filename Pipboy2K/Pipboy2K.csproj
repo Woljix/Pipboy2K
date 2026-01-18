@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="LuaCSharp" Version="0.5.2" />
     <PackageReference Include="Raylib-cs" Version="7.0.2" />
   </ItemGroup>
 

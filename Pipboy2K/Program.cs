@@ -1,10 +1,13 @@
 ﻿using System;
 using Raylib_cs;
+using Lua;
 
 using Pipboy2K.UI;
 using Pipboy2K.Modules;
 using Pipboy2K.Engine.Core;
 using System.Numerics;
+using Pipboy2K.UI.Widgets;
+using Pipboy2K.UI.Layout;
 
 namespace Pipboy2K
 {
@@ -31,6 +34,8 @@ namespace Pipboy2K
         This will not work for everything, but some elements are very simple and only needs to be redrawn on resize or state change.
         */
 
+        private static float TIME = 0.0f;
+
         [STAThread]
         public static void Main(string[] args)
         {
@@ -39,51 +44,83 @@ namespace Pipboy2K
 
             Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);
 
-            Raylib.InitWindow(settings.WindowWidth, settings.WindowHeight, "Pip-boy 2000 MK VI | In-dev");
+            #if DEBUG
+                string _buildTag = "DEBUG";
+            #else
+                string _buildTag = "RELEASE";
+            #endif
+
+            Raylib.InitWindow(settings.WindowWidth, settings.WindowHeight, $"Pip-boy 2000 MK VI | In-dev ({_buildTag})");
             Raylib.SetTargetFPS(settings.TargetFPS);
 
             // TODO: Turn this into an actual event.
             void _onResize()
             {
-                GC.ScreenBounds = new (Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
+                GS.ScreenBounds = new (Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
                 ui.HandleResize();
             }
 
             // GC has to be initialized after Raylib.InitWindow, because it loads fonts that require a valid Raylib context.
-            GC.Init(settings, ui);
+            GS.Init(settings, ui);
 
             // Top Menu
-            TabbedView tabbedView = new TabbedView();
+            TabbedView tabbedView = ui.Instantiate<TabbedView>();
             tabbedView.AnchorPoint = new (0, 0);
             tabbedView.PivotPoint = new (0, 0);
             tabbedView.UseAnchorPoint = true;
             tabbedView.Prepare();
             //tabbedView.Position = new Vector2(0, 0);
-            ui.AddWidget(tabbedView);
 
-            Status statusModule = new Status();
+            Status statusModule = ui.Instantiate<Status>();
             statusModule.UseAnchorPoint = true;
             statusModule.AnchorPoint = new (0, 1f);
             statusModule.PivotPoint = new (0, 1f);
             statusModule.Prepare();
 
-            //Console.WriteLine(GC.Bounds.ToString());
+            //Console.WriteLine(GS.Bounds.ToString());
             //statusModule.Position = new Vector2(0, 0);
-            ui.AddWidget(statusModule);
-
-
+            //ui.AddWidget(statusModule);
 
             Texture2D boy = Raylib.LoadTexture("resources/sprites/vaultboy_thumbsup_anim.png");
             Raylib.GenTextureMipmaps(ref boy);
 
             UISprite vaultBoy = new UISprite(boy, 169, 240);
+            vaultBoy.FrameStep = 0.12f;
             vaultBoy.UseAnchorPoint = true;
             vaultBoy.AnchorPoint = new (0.5f, 0.5f);
             vaultBoy.PivotPoint = new (0.5f, 0.5f);
             vaultBoy.Prepare();
 
-
             ui.AddWidget(vaultBoy);
+
+            LuaState lua = LuaState.Create();
+
+            //lua.Registry.
+
+            // UICanvas canvas = new UICanvas();
+            // canvas.Position = new Vector2(100, 100);
+            // //canvas.UseAnchorPoint = true;
+            // //canvas.AnchorPoint = new Vector2(0.5f, 0.5f);
+            // //canvas.PivotPoint = new Vector2(0.5f, 0.5f);
+
+            // canvas.AddChild(new UIText("Hello World!"));
+
+            // var _textElement = new UIText("Hiii");
+            // _textElement.Position = new Vector2(0, 50);
+            // canvas.AddChild(_textElement);
+
+
+
+            //canvas.Prepare();
+
+            //ui.AddWidget(canvas);
+
+            //UITerminal term = new UITerminal();
+            //term.ClearGrid();
+            //term.WriteText(0,0, "Hello World", Color.Black, Color.White);
+            //term.Prepare();
+
+            //ui.AddWidget(term);
 
             int boyIndex = 0;
 
@@ -107,7 +144,7 @@ namespace Pipboy2K
                 }
 
                 if (Raylib.IsKeyPressed(KeyboardKey.F3))
-                    GC.DebugMode = !GC.DebugMode;
+                    GS.DebugMode = !GS.DebugMode;
 
                 if (Raylib.IsKeyPressed(KeyboardKey.F4))
                 {
@@ -116,7 +153,7 @@ namespace Pipboy2K
                     {
                         foreach (var widget in _widgets)
                         {
-                            Console.WriteLine($"{new String('#', depth + 1)} Name: '{widget.GetType().ToString()}' Pos: '{widget.Position}', SpritePos: {widget.SpritePosition} Rect: '{widget.Rect}'");
+                            Console.WriteLine($"{new String('#', depth + 1)} Name: '{widget.GetType().ToString()}' Pos: '{widget.Position}', SpritePos: {widget.SpritePosition} Rect: '{widget.BoundingBox}'");
                             if (widget.Children != null)
                             {
                                 Dive(widget.Children, depth + 1);
@@ -156,32 +193,36 @@ namespace Pipboy2K
                     tabbedView.MovePrevSubTab();
                 }
 
-                if (Raylib.IsKeyPressed(KeyboardKey.Up))
-                {
-                    boyIndex++;
+                vaultBoy.Tick();
 
-                    if (boyIndex > 7)
-                    {
-                        boyIndex = 0;
-                    }
+                // if (Raylib.IsKeyPressed(KeyboardKey.Up))
+                // {
+                //     boyIndex++;
 
-                    vaultBoy.SetFrame(boyIndex);
-                }
+                //     if (boyIndex > 7)
+                //     {
+                //         boyIndex = 0;
+                //     }
 
-                if (Raylib.IsKeyPressed(KeyboardKey.Down))
-                {
-                    boyIndex--;
+                //     vaultBoy.SetFrame(boyIndex);
+                // }
 
-                    if (boyIndex < 0)
-                    {
-                        boyIndex = 7;
-                    }
+                // if (Raylib.IsKeyPressed(KeyboardKey.Down))
+                // {
+                //     boyIndex--;
 
-                    vaultBoy.SetFrame(boyIndex);
-                }
+                //     if (boyIndex < 0)
+                //     {
+                //         boyIndex = 7;
+                //     }
+
+                //     vaultBoy.SetFrame(boyIndex);
+                // }
 
                 if (Raylib.IsMouseButtonPressed(MouseButton.Left))
                 {
+                    //term.WriteText(50, 20, "Hello", Color.DarkBrown, Color.Blue);
+                    //term.Write("Hello World!");
                     //tabbedView.Position = Raylib.GetMousePosition();
                     //statusModule.Position = Raylib.GetMousePosition();
                 }
@@ -194,9 +235,9 @@ namespace Pipboy2K
                 Raylib.BeginDrawing();
 
                 // Draw Black background
-                Raylib.DrawRectangleRec(new Rectangle(0,0, GC.ScreenBounds), Color.Black);
+                Raylib.DrawRectangleRec(new Rectangle(0,0, GS.ScreenBounds), Color.Black);
 
-                ui.Render();
+                ui.Tick();
 
 
 
@@ -210,6 +251,14 @@ namespace Pipboy2K
                 Raylib.DrawText("Status: " + statusModule.Position.ToString(), 200, 300, 18, Color.White);
                 Raylib.DrawText("Tabbed:" + tabbedView.Position.ToString(), 200, 350, 18, Color.White);
                 Raylib.DrawText("Mouse: " + Raylib.GetMousePosition().ToString(), 200, 400, 18, Color.RayWhite);
+                //Raylib.DrawText("Time: " + TIME.ToString(), 200, 450, 18, Color.RayWhite);
+                //Raylib.DrawText("FPS: " + Raylib.GetFrameTime(), 200, 500, 18, Color.RayWhite);
+
+                //TIME += Raylib.GetFrameTime();
+
+                var _indexes = tabbedView.GetIndexes;
+
+                Raylib.DrawText($"({_indexes.Item1}, {_indexes.Item2})", 200, 250, 18, Color.RayWhite);
 
 
 
@@ -244,8 +293,8 @@ namespace Pipboy2K
     }
 
     // Probably temporary, as i want to test something.
-    // GC = GameContext
-    public static class GC
+    // GS = GameState
+    public static class GS
     {
         public enum HeaderStatus
         {
@@ -275,6 +324,9 @@ namespace Pipboy2K
         public static readonly Font RobotoBFont;
         public static readonly Font RobotoRFont;
 
+
+        public static readonly Color COLORGREEN = new Color(0, 238, 0);
+
         public static bool DebugMode = false;
 
         private static Vector2 _screenBounds = Vector2.Zero;
@@ -298,7 +350,7 @@ namespace Pipboy2K
         public static HeaderStatus headerStatus = HeaderStatus.Visible;
         public static FooterStatus footerStatus = FooterStatus.STATUS;
 
-        static GC()
+        static GS()
         {
             static Font _loadAndFilterFont(string path)
             {

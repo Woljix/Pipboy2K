@@ -60,3 +60,4 @@ nunit-*.xml
 .nuke/
 /external/
 /output/
+.vscode/

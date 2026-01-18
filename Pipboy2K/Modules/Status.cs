@@ -1,7 +1,7 @@
 using System.Numerics;
 using Pipboy2K.UI;
 using Raylib_cs;
-using static Pipboy2K.GC;
+using static Pipboy2K.GS;
 
 namespace Pipboy2K.Modules;
 
@@ -26,7 +26,7 @@ public class Status : UIWidget
         //Raylib.DrawRectangle(0, (int)GC.Bounds.Height - statusBarHeight, (int)GC.Bounds.Width, statusBarHeight, Color.DarkGray);
         // This is rougly the ratio of the segments in the status bar on the "STATUS" screen.
 
-        switch (GC.footerStatus)
+        switch (GS.footerStatus)
         {
             case FooterStatus.STATUS:
                 RenderStatusBar();
@@ -65,12 +65,12 @@ public class Status : UIWidget
         int currentX = 0;
         int pad = statusBarPadding;
 
-        int width25 = (int)(ScreenBounds.X * 0.25f);
-        int width50 = (int)(ScreenBounds.X * 0.50f);
+        int width25 = (int)(ScreenBounds.Width * 0.25f);
+        int width50 = (int)(ScreenBounds.Width * 0.50f);
 
         // --- Segment 1 (25%) ---
         DrawRectangle(currentX, yPos, width25 - pad, statusBarHeight, Color.DarkGreen);
-        DrawTextEx(GC.RobotoBFont, "HP 97/100", new Vector2(currentX + pad, yPos + pad), 36, 1.0f, Color.Green);
+        DrawTextEx(GS.RobotoBFont, "HP 97/100", new Vector2(currentX + pad, yPos + pad), 36, 1.0f, Color.Green);
 
         // Move X pointer to the next segment
         currentX += width25 + pad;
@@ -82,7 +82,7 @@ public class Status : UIWidget
         currentX += width50 + pad;
 
         // --- Segment 3 (25%) ---
-        DrawRectangle(currentX, yPos, width25 - pad, statusBarHeight, Color.DarkGreen);
+        DrawRectangle(currentX, yPos, width25 - pad * 2, statusBarHeight, Color.DarkGreen);
     }
 
 }
