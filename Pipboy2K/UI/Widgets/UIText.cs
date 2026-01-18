@@ -26,5 +26,5 @@ public class UIText : UIWidget
             this.Color = Color.Value;
     }
 
-    public override void Paint() => DrawTextEx(Font, Text, Position, FontSize, Spacing, Color);
+    protected override void Draw(WidgetRenderer e, RenderTransform transform) => e.DrawTextEx(Font, Text, transform.Position, FontSize, Spacing, Color);
 }

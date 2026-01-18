@@ -13,7 +13,7 @@ public class Status : UIWidget
 
     public Status()
     {
-        Prepare();
+
     }
 
     public override void Update()
@@ -21,7 +21,7 @@ public class Status : UIWidget
 
     }
 
-    public override void Paint()
+    protected override void Draw(WidgetRenderer e, RenderTransform transform)
     {
         //Raylib.DrawRectangle(0, (int)GC.Bounds.Height - statusBarHeight, (int)GC.Bounds.Width, statusBarHeight, Color.DarkGray);
         // This is rougly the ratio of the segments in the status bar on the "STATUS" screen.
@@ -29,7 +29,28 @@ public class Status : UIWidget
         switch (GS.footerStatus)
         {
             case FooterStatus.STATUS:
-                RenderStatusBar();
+                int yPos = 0;
+                int currentX = 0;
+                int pad = statusBarPadding;
+
+                int width25 = (int)(transform.RenderBounds.Width * 0.25f);
+                int width50 = (int)(transform.RenderBounds.Width * 0.50f);
+
+                // --- Segment 1 (25%) ---
+                e.DrawRectangle(currentX, yPos, width25 - pad, statusBarHeight, Color.DarkGreen);
+                e.DrawTextEx(GS.RobotoBFont, "HP 97/100", new Vector2(currentX + pad, yPos + pad), 36, 1.0f, Color.Green);
+
+                // Move X pointer to the next segment
+                currentX += width25 + pad;
+
+                // --- Segment 2 (50%) ---
+                e.DrawRectangle(currentX, yPos, width50 - pad, statusBarHeight, Color.DarkGreen);
+
+                // Move X pointer
+                currentX += width50 + pad;
+
+                // --- Segment 3 (25%) ---
+                e.DrawRectangle(currentX, yPos, width25 - pad * 2, statusBarHeight, Color.DarkGreen);
                 break;
             case FooterStatus.ITEM:
                 // RenderItemBar();
@@ -61,28 +82,6 @@ public class Status : UIWidget
         DrawRectangle(firstSegmentWidth + secondSegmentWidth + statusBarPadding * 2, (int)Bounds.Height - statusBarHeight, thirdSegmentWidth - statusBarPadding, statusBarHeight, Color.DarkGreen);
         */
 
-        int yPos = 0;
-        int currentX = 0;
-        int pad = statusBarPadding;
 
-        int width25 = (int)(ScreenBounds.Width * 0.25f);
-        int width50 = (int)(ScreenBounds.Width * 0.50f);
-
-        // --- Segment 1 (25%) ---
-        DrawRectangle(currentX, yPos, width25 - pad, statusBarHeight, Color.DarkGreen);
-        DrawTextEx(GS.RobotoBFont, "HP 97/100", new Vector2(currentX + pad, yPos + pad), 36, 1.0f, Color.Green);
-
-        // Move X pointer to the next segment
-        currentX += width25 + pad;
-
-        // --- Segment 2 (50%) ---
-        DrawRectangle(currentX, yPos, width50 - pad, statusBarHeight, Color.DarkGreen);
-
-        // Move X pointer
-        currentX += width50 + pad;
-
-        // --- Segment 3 (25%) ---
-        DrawRectangle(currentX, yPos, width25 - pad * 2, statusBarHeight, Color.DarkGreen);
     }
-
 }

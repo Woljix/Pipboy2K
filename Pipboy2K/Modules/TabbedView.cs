@@ -97,14 +97,14 @@ public class TabbedView : UIWidget
     private Dictionary<string, float> _subTabTextWidths = new Dictionary<string, float>();
     private List<string> _cachedTabNames = new List<string>();
 
-    public override void Paint()
+    protected override void Draw(WidgetRenderer e, RenderTransform transform)
     {
         if (GS.headerStatus == HeaderStatus.Hidden)
             return;
 
         float _thiccnessOffset = MathF.Round(_lineThickness / 2.0f);
 
-        Vector2 centerOfBounds = new Vector2((ScreenBounds.Width / 2), (ScreenBounds.Height / 2));
+        Vector2 centerOfBounds = new Vector2((transform.GetWindowSize.X / 2), (transform.GetWindowSize.Y / 2));
 
         int _currentOffset = (int)(centerOfBounds.X - (_tabWidth / 2));
 
@@ -122,14 +122,14 @@ public class TabbedView : UIWidget
             if (i == selectedTabIndex)
             {
                 // Left line of the tab.
-                DrawLineEx(
+                e.DrawLineEx(
                     new Vector2(xPos - (_lineThickness * 3), _lineOffset + _thiccnessOffset),
                     new Vector2(xPos - (_lineThickness * 3),  _lineOffset - (textSize.Y - _lineThickness * 2)),
                     _lineThickness,
                     Color.Green);
 
                 // Right line of the tab
-                DrawLineEx(
+                e.DrawLineEx(
                     new Vector2(xPos + textSize.X + (_lineThickness * 3), _lineOffset + _thiccnessOffset),
                     new Vector2(xPos + textSize.X + (_lineThickness * 3), _lineOffset - (textSize.Y - _lineThickness * 2)),
                     _lineThickness,
@@ -138,30 +138,30 @@ public class TabbedView : UIWidget
                 float _lineY = _lineOffset - (textSize.Y - _lineThickness * 2.5f);
 
                 // Top-left line of the tab.
-                DrawLineEx(
+                e.DrawLineEx(
                     new Vector2(xPos - (_lineThickness * 3) + _thiccnessOffset, _lineY),
                     new Vector2(xPos - _lineThickness, _lineY),
                     _lineThickness,
                     Color.Green);
 
                 // Top-right line of the tab.
-                DrawLineEx(
+                e.DrawLineEx(
                     new Vector2(xPos + textSize.X + (_lineThickness * 3) - _thiccnessOffset, _lineY),
                     new Vector2(xPos + textSize.X + _lineThickness, _lineY),
                     _lineThickness,
                     Color.Green);
 
                 // First line segment to start of tab.
-                DrawLineEx(
+                e.DrawLineEx(
                     new Vector2(0, _lineOffset),
                     new Vector2(xPos - (_lineThickness * 3) + _thiccnessOffset, _lineOffset),
                     _lineThickness,
                     Color.Green);
 
                 // End line segment after tab.
-                DrawLineEx(
+                e.DrawLineEx(
                     new Vector2(xPos + textSize.X + (_lineThickness * 3), _lineOffset),
-                    new Vector2(ScreenBounds.Width,  _lineOffset),
+                    new Vector2(transform.GetWindowSize.X,  _lineOffset),
                     _lineThickness,
                     Color.Green);
 
@@ -196,13 +196,13 @@ public class TabbedView : UIWidget
 
                     Color _color = (j == selectedSubTabIndex) ? Color.Green : Color.DarkGreen;
 
-                    DrawTextEx(GS.RobotoRFont, subTabName, new Vector2(subTabXPos, _lineOffset + _thiccnessOffset), 38, 1.0f, _color);
+                    e.DrawTextEx(GS.RobotoRFont, subTabName, new Vector2(subTabXPos, _lineOffset + _thiccnessOffset), 38, 1.0f, _color);
                 }
 
                 #endregion
             }
 
-            DrawTextEx(GS.RobotoBFont, tabName, new Vector2(xPos, _lineOffset - textSize.Y - _thiccnessOffset), 38, 1.0f, Color.Green);
+            e.DrawTextEx(GS.RobotoBFont, tabName, new Vector2(xPos, _lineOffset - textSize.Y - _thiccnessOffset), 38, 1.0f, Color.Green);
         }
     }
 

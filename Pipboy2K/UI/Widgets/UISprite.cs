@@ -48,12 +48,12 @@ public class UISprite : UIWidget
     }
 
 
-    public override void Paint()
+    protected override void Draw(WidgetRenderer e, RenderTransform transform)
     {
         if (spriteTexture == null)
             return;
 
-        DrawTextureRec(spriteTexture.Value, _destRect, Vector2.Zero, Color.White);
+        e.DrawTextureRec(spriteTexture.Value, _destRect, Vector2.Zero, Color.White);
     }
 
     public void SetFrame(int i)

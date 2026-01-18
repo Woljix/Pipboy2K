@@ -3,6 +3,7 @@ using System.Numerics;
 using Raylib_cs;
 using Rectangle = Raylib_cs.Rectangle;
 using Color = Raylib_cs.Color;
+using Pipboy2K.UI;
 
 namespace Pipboy2K.Engine.Core;
 
@@ -24,9 +25,17 @@ public abstract class RawSprite
     /// Size of the sprite determited by the rendering calls.
     /// </summary>
     public Vector2 SpriteSize {get; private set; } = Vector2.Zero;
-    public Vector2 SpritePosition = Vector2.Zero;
+    public Vector2 SpritePosition
+    {
+        get; set;
+    }
 
-    public Rectangle SpriteRect { get { return new Rectangle(SpritePosition, SpriteSize); }}
+    public Rectangle SpriteRect { get { return new Rectangle(GetSpritePosition, SpriteSize); }}
+
+    public virtual Vector2 GetSpritePosition
+    {
+        get { return SpritePosition; } set { SpritePosition = value;}
+    }
 
     public (Vector2, Vector2) GetMinMax
     {
@@ -61,12 +70,12 @@ public abstract class RawSprite
         Expand(startPos + new Vector2(-thick / 2, -thick / 2));
         Expand(endPos + new Vector2(-thick / 2, -thick / 2));
         if (_ready)
-            Raylib.DrawLineEx(SpritePosition + startPos, SpritePosition + endPos, thick, color);
+            Raylib.DrawLineEx(GetSpritePosition + startPos, GetSpritePosition + endPos, thick, color);
     }
 
     public void DrawRectangleRec(Rectangle rec, Color color)
     {
-        Rectangle _rec = new Rectangle(SpritePosition + rec.Position, rec.Size);
+        Rectangle _rec = new Rectangle(GetSpritePosition + rec.Position, rec.Size);
         Expand(new Vector2(rec.X, rec.Y));
         Expand(new Vector2(rec.X + rec.Width, rec.Y + rec.Height));
         if (_ready)
@@ -85,14 +94,15 @@ public abstract class RawSprite
         Expand(position);
         Expand(position + textSize);
         if (_ready)
-            Raylib.DrawTextEx(font, text, SpritePosition + position, fontSize, spacing, tint);
+            Raylib.DrawTextEx(font, text, GetSpritePosition + position, fontSize, spacing, tint);
     }
 
     public void DrawTextureRec(Texture2D texture, Rectangle source, Vector2 position, Color tint)
     {
         Expand(new (position.X, position.Y));
         Expand(new (position.X + source.Width, position.Y + source.Height));
-        Raylib.DrawTextureRec(texture, source, SpritePosition + position, tint);
+        if (_ready)
+            Raylib.DrawTextureRec(texture, source, GetSpritePosition + position, tint);
     }
 
     public void DrawTexture()
@@ -104,7 +114,7 @@ public abstract class RawSprite
     {
         // TODO
         // Fuck i don't want to do that kind of math man..
-        Raylib.DrawTextureEx(texture, position, rotation, scale, tint);
+        Raylib.DrawTextureEx(texture, GetSpritePosition + position, rotation, scale, tint);
     }
 
     //public Rectangle RenderRect { get { return new Rectangle(RenderPosition, Gfx.Size);}}
@@ -117,8 +127,6 @@ public abstract class RawSprite
 
     public RawSprite() {}
 
-    protected virtual void Predraw() { }
-
     protected abstract void Draw();
 
     public void AttemptDraw()
@@ -126,8 +134,10 @@ public abstract class RawSprite
         // Do something else here?
         Draw();
 
-        if (GS.DebugMode)
-            Raylib.DrawRectangleLinesEx(SpriteRect, 2, Color.Red);
+        if (!_ready)
+            _ready = true;
+
+
     }
 
     // Might not be needed
@@ -136,7 +146,6 @@ public abstract class RawSprite
         AttemptDraw();
         _ready = true;
     }
-
     /*
 
     /// <summary>
@@ -203,45 +212,47 @@ public abstract class RawSprite
     */
 }
 
-/// <summary>
-/// Allows the creation sprites on the fly.
-/// </summary>
-public class CanvasSprite : RawSprite
-{
-    private Action<CanvasSprite>? OnDraw;
+// /// <summary>
+// /// Allows the creation sprites on the fly.
+// /// </summary>
+// public class CanvasSprite : RawSprite
+// {
+//     private Action<CanvasSprite>? OnDraw;
 
-    public CanvasSprite() { }
+//     public CanvasSprite() { }
 
-    public CanvasSprite(Action<CanvasSprite> OnDraw) => SetDraw(OnDraw);
+//     public CanvasSprite(Action<CanvasSprite> OnDraw) => SetDraw(OnDraw);
 
-    public void SetDraw(Action<CanvasSprite> OnDraw) => this.OnDraw = OnDraw;
+//     public override Vector2 SpritePosition { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-    protected override void Draw()
-    {
-        if (OnDraw == null)
-            return;
+//     public void SetDraw(Action<CanvasSprite> OnDraw) => this.OnDraw = OnDraw;
 
-        OnDraw.Invoke(this);
-    }
-}
+//     protected override void Draw()
+//     {
+//         if (OnDraw == null)
+//             return;
 
-public class AnimatedSprite : RawSprite
-{
-    // TODO
+//         OnDraw.Invoke(this);
+//     }
+// }
 
-    public AnimatedSprite()
-    {
+// public class AnimatedSprite : RawSprite
+// {
+//     // TODO
 
-    }
+//     public AnimatedSprite()
+//     {
 
-    protected override void Draw()
-    {
+//     }
 
-    }
-}
+//     protected override void Draw()
+//     {
 
-// Alt name: Gfx?
-public class EntityRenderer
-{
+//     }
+// }
 
-}
+// // Alt name: Gfx?
+// public class EntityRenderer
+// {
+
+// }

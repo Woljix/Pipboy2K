@@ -3,6 +3,9 @@ using Pipboy2K.Engine.Core;
 using System.Numerics;
 using Pipboy2K.Util;
 using Lua;
+using System.Security.Cryptography.X509Certificates;
+
+
 
 namespace Pipboy2K.UI;
 
@@ -18,53 +21,32 @@ public enum UIWidgetType
     Interactable
 }
 
-public abstract class Transform
+public class Transform
 {
-    public Vector2 _localPosition;
-
-    public Vector2 LocalPosition;
-
-    public Vector2 GlobalPosition;
-
-    public Transform()
-    {
-
-    }
-
-    internal float lol()
-    {
-        return 0.0f;
-    }
-}
-
-
-/*
- Born: TBD()
- GameLoop: Update() -> Invalidate() -> Paint()
- Die: TBD()
- */
-public abstract class UIWidget : RawSprite
-{
-    public struct LayoutStyle
-    {
-
-    }
-
-    internal UIManager UI;
-
-    #region Widget Defines
-
-    public UIWidgetType WidgetType;
-
     public UIWidget? Parent { get; protected set; }
     public List<UIWidget> Children { get; private set; }
-    #endregion
 
-    // TODO: Transform should be a struct (i think?) that only should be calculated once when needed.
-    // If nothing changes - do not do expensive math.
+    public UIWidget widget { get; internal set; }
 
-    #region Transform
-    private Vector2 LocalPosition { get { return SpritePosition; } set { SpritePosition = value; } }
+    public bool HasParent
+    {
+        get
+        {
+            return Parent != null;
+        }
+    }
+
+    public bool HasChildren
+    {
+        get
+        {
+            return Children.Count > 0;
+        }
+    }
+
+    private Vector2 _localPosition = Vector2.Zero;
+
+    private Vector2 LocalPosition { get { return _localPosition; } set { _localPosition = value; } }
     /// <summary>
     /// Global Position (Parent's Position + Local Position)
     /// </summary>
@@ -72,7 +54,7 @@ public abstract class UIWidget : RawSprite
     {
         get
         {
-            Vector2 _pos = (Parent != null ? Parent.Position : Vector2.Zero) + LocalPosition;
+            Vector2 _pos = (Parent != null ? Parent.transform.Position : Vector2.Zero) + LocalPosition;
 
             return _pos;
         }
@@ -84,7 +66,7 @@ public abstract class UIWidget : RawSprite
             }
             else
             {
-                LocalPosition = Parent.Position - value;
+                LocalPosition = Parent.transform.Position - value;
             }
         }
     }
@@ -96,19 +78,48 @@ public abstract class UIWidget : RawSprite
     {
         get
         {
-            if (Children.Count > 0)
-            {
-                var bb = new BB();
-
-                Children.ForEach(x => bb.Calculate([x.BoundingBox]));
-
-                bb.Calculate([new Rectangle(Position, SpriteSize)]);
-
-                return bb.GetBB();
-            }
-
-            return new Rectangle(Position, SpriteSize);
+            return widget.renderer.GetRenderTransform.BoundingBox;
         }
+    }
+
+    /// <summary>
+    /// Calculates Bounding Box (Expensive!)
+    /// </summary>
+    /// <returns></returns>
+
+    public Rectangle CalculateBoundingBox()
+    {
+
+
+        //var lol = familyTree.SelectMany(x => x.transform).ToList();
+
+        //bb.Calculate(familyTree)
+
+        if (HasChildren && !HasParent)
+        {
+            var bb = new BB();
+
+            var familyTree = WidgetExtensions.GetAllDescendants(this.widget).ToList();
+
+            List<Rectangle> rectangles = new List<Rectangle>();
+
+            familyTree.ForEach(x => rectangles.Add(new Rectangle(x.renderer.GetSpritePosition, x.renderer.SpriteSize)));
+
+            bb.Calculate([new Rectangle(Position, widget.renderer.SpriteSize)]);
+
+            var box = bb.GetBB();
+
+            Console.WriteLine("BB: " + box.ToString());
+
+            return box;
+        }
+
+        return new Rectangle(Position, widget.renderer.SpriteSize);
+    }
+
+    public List<UIWidget> GetFamilyTree()
+    {
+        return Children.SelectMany(x => x.transform.Children).ToList();
     }
 
     /// <summary>
@@ -119,14 +130,78 @@ public abstract class UIWidget : RawSprite
     {
         get
         {
-            return Parent != null ? Parent.BoundingBox : new Rectangle(0, 0, GS.ScreenBounds);
+            return Parent != null ? Parent.transform.BoundingBox : new Rectangle(0, 0, GS.ScreenBounds);
         }
     }
 
-    #endregion
+    public float Width;
+    public float Height;
 
-    #region Layout
-    public bool UseAnchorPoint = false;
+    public Transform(UIWidget widget)
+    {
+        this.widget = widget;
+
+        Children = new List<UIWidget>();
+    }
+
+    public void AddChild(UIWidget widget)
+    {
+        // Check for recursiveness or something..
+        widget.transform.Parent = this.widget;
+        Children.Add(widget);
+    }
+}
+
+public static class WidgetExtensions
+{
+    public static IEnumerable<UIWidget> GetAllDescendants(this UIWidget widget)
+    {
+        if (widget.transform.Children == null) yield break;
+
+        // Use a stack for Depth-First Search (DFS)
+        var stack = new Stack<UIWidget>(widget.transform.Children);
+
+        while (stack.Count > 0)
+        {
+            var current = stack.Pop();
+            yield return current;
+
+            // Add children to the stack to process them next
+            foreach (var child in current.transform.Children)
+            {
+                stack.Push(child);
+            }
+        }
+    }
+}
+
+
+public struct LayoutStyle
+{
+    public enum AutoSizeType
+    {
+        Manual,
+        Auto,
+    }
+
+    public enum PositionType
+    {
+        Manual,
+        Auto,
+        AnchorPoint
+    }
+
+    // SCALE
+
+    public AutoSizeType AutoSize = AutoSizeType.Auto;
+
+    public float Width;
+
+    public float Height;
+
+    // POSITION
+
+    public PositionType UsePositionType = PositionType.Auto;
 
     /// <summary>
     /// Requires UseAnchorPoint = true
@@ -138,9 +213,45 @@ public abstract class UIWidget : RawSprite
     /// </summary>
     public Vector2 PivotPoint = new Vector2(0, 1.0f);
 
+    public Vector2 Position;
+
+    public LayoutStyle() { }
+
+    public static LayoutStyle Auto()
+    {
+        return new LayoutStyle()
+        {
+
+        };
+    }
+}
+
+
+/*
+ Born: TBD()
+ GameLoop: Update() -> Invalidate() -> Paint()
+ Die: TBD()
+ */
+public abstract class UIWidget
+{
+    public Transform transform;
+    public WidgetRenderer renderer;
+    public LayoutStyle Layout;
+
+    //internal UIManager UI;
+
+    #region Widget Defines
+
+    public UIWidgetType WidgetType;
+
     #endregion
 
+    // TODO: Transform should be a struct (i think?) that only should be calculated once when needed.
+    // If nothing changes - do not do expensive math.
 
+    #region Transform
+
+    #endregion
 
     // Area that the widget occupies, and is allowed to draw in.
     //public Raylib_cs.Rectangle _bounds;
@@ -148,38 +259,15 @@ public abstract class UIWidget : RawSprite
     public UIWidget(UIWidgetType widgetType = UIWidgetType.Static)
     {
         this.WidgetType = widgetType;
+        this.Layout = new LayoutStyle();
 
-        Children = new List<UIWidget>();
+        this.transform = new Transform(this);
 
-        Prepare();
-        Invalidate(this);
-    }
+        this.renderer = new WidgetRenderer(this);
+        this.renderer.OnPaint += Draw;
 
-    public void GetEvent()
-    {
-        //Parent.Invalidate(this);
-    }
-
-    // probably a temp function, to just check if something is not valid anymore.
-    protected void Invalidate(UIWidget widget)
-    {
-        active = false; // Reset min & max (TODO: This does not have to happen every frame, only when something changes.)
-
-        if (UseAnchorPoint)
-        {
-            var localPivot = SpriteSize * PivotPoint;
-
-            // Get Anchored Location                Offset with _position
-            var ancPos = (ScreenBounds.Size * AnchorPoint) - localPivot;
-
-            // Why the fuck do i need to do this? Did i accidentally invert the world and local positions?
-            //LocalPosition = ancPos;
-
-            Position = ancPos;
-        }
-
-        OnInvalidate();
-        //Queue<string> lol = new Queue<string>();
+        //Prepare();
+        //Invalidate(this);
     }
 
     public virtual void OnInvalidate() { }
@@ -190,23 +278,15 @@ public abstract class UIWidget : RawSprite
 
     public virtual void Paint() { }
 
-    protected override void Draw()
+    protected abstract void Draw(WidgetRenderer e, RenderTransform transform);
+
+    public void PaintFamily()
     {
-        Invalidate(this);
-        Paint();
+        renderer.AttemptDraw();
 
-        foreach (var child in Children)
-            child.Draw();
-
-        if (GS.DebugMode)
-            if (Children.Count > 0 && Parent == null)
-                Raylib.DrawRectangleLinesEx(BoundingBox, 2, Color.Yellow);
-    }
-
-    public void AddChild(UIWidget widget)
-    {
-        // Check for recursiveness or something..
-        widget.Parent = this;
-        Children.Add(widget);
+        foreach (var child in transform.Children)
+        {
+            child.PaintFamily();
+        }
     }
 }

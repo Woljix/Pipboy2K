@@ -19,7 +19,6 @@ public class BB
 
     void Expand(Vector2 point)
     {
-
         min.X = MathF.Min(min.X, point.X);
         min.Y = MathF.Min(min.Y, point.Y);
         max.X = MathF.Max(max.X, point.X);

@@ -5,7 +5,7 @@ namespace Pipboy2K.UI;
 
 public class UIManager
 {
-    public List<UIWidget> Widgets {get; private set; } = new List<UIWidget>();
+    public List<UIWidget> Widgets { get; private set; } = new List<UIWidget>();
 
     public event Action<Vector2>? OnResize;
 
@@ -13,10 +13,10 @@ public class UIManager
 
     public T Instantiate<T>() where T : UIWidget, new()
     {
-       T _widget = new T();
-       _widget.UI = this;
-       Widgets.Add(_widget);
-       return _widget;
+        T _widget = new T();
+        //_widget.UI = this;
+        Widgets.Add(_widget);
+        return _widget;
     }
 
     public void AddWidget(UIWidget widget)
@@ -24,8 +24,34 @@ public class UIManager
         Widgets.Add(widget);
     }
 
+    public bool _ready = false;
+
+    /// <summary>
+    /// This is done so that invalidation can be done next frame.
+    /// Hacky, but works.
+    /// </summary>
+    public bool _shouldInvalidate = false;
+
     public void Tick()
     {
+        if (_shouldInvalidate)
+        {
+            Invalidate();
+            _shouldInvalidate = false;
+        }
+
+        if (Raylib.IsWindowResized() || !_ready)
+        {
+            _ready = true;
+            Console.WriteLine("WINDOW RESIZED!");
+
+            RenderTransform.WINDOWSIZE = new(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
+
+            Invalidate();
+
+            _shouldInvalidate = true;
+        }
+
         foreach (UIWidget widget in Widgets)
         {
             widget.Update();
@@ -33,16 +59,17 @@ public class UIManager
 
         foreach (UIWidget widget in Widgets)
         {
-            widget.AttemptDraw();
+            widget.PaintFamily();
         }
+
     }
 
-    public void HandleResize()
+    public void Invalidate()
     {
-        //GC.Bounds = new Rectangle(0, 0, Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
-
-        //foreach (var widget in widgets)
-            //widget.Invalidate();
+        foreach (UIWidget widget in Widgets)
+        {
+            widget.renderer.Invalidate();
+        }
     }
 }
 

@@ -57,7 +57,6 @@ namespace Pipboy2K
             void _onResize()
             {
                 GS.ScreenBounds = new (Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
-                ui.HandleResize();
             }
 
             // GC has to be initialized after Raylib.InitWindow, because it loads fonts that require a valid Raylib context.
@@ -65,17 +64,24 @@ namespace Pipboy2K
 
             // Top Menu
             TabbedView tabbedView = ui.Instantiate<TabbedView>();
-            tabbedView.AnchorPoint = new (0, 0);
-            tabbedView.PivotPoint = new (0, 0);
-            tabbedView.UseAnchorPoint = true;
-            tabbedView.Prepare();
+            tabbedView.Layout = new LayoutStyle()
+            {
+                UsePositionType = LayoutStyle.PositionType.AnchorPoint,
+                AnchorPoint = new (0.0f, 0.0f),
+                PivotPoint = new (0.0f, 0.0f)
+            };
+            tabbedView.transform.Position = new Vector2(300, 300);
+            tabbedView.renderer.Prepare();
             //tabbedView.Position = new Vector2(0, 0);
 
             Status statusModule = ui.Instantiate<Status>();
-            statusModule.UseAnchorPoint = true;
-            statusModule.AnchorPoint = new (0, 1f);
-            statusModule.PivotPoint = new (0, 1f);
-            statusModule.Prepare();
+            statusModule.Layout = new LayoutStyle()
+            {
+                UsePositionType = LayoutStyle.PositionType.AnchorPoint,
+                AnchorPoint = new (0, 1f),
+                PivotPoint = new (0, 1f)
+            };
+            statusModule.renderer.Prepare();
 
             //Console.WriteLine(GS.Bounds.ToString());
             //statusModule.Position = new Vector2(0, 0);
@@ -85,11 +91,15 @@ namespace Pipboy2K
             Raylib.GenTextureMipmaps(ref boy);
 
             UISprite vaultBoy = new UISprite(boy, 169, 240);
+            vaultBoy.Layout = new LayoutStyle()
+            {
+                UsePositionType = LayoutStyle.PositionType.AnchorPoint,
+                AnchorPoint = new (0.5f, 0.5f),
+                PivotPoint = new (0.5f, 0.5f)
+            };
             vaultBoy.FrameStep = 0.12f;
-            vaultBoy.UseAnchorPoint = true;
-            vaultBoy.AnchorPoint = new (0.5f, 0.5f);
-            vaultBoy.PivotPoint = new (0.5f, 0.5f);
-            vaultBoy.Prepare();
+
+            vaultBoy.renderer.Prepare();
 
             ui.AddWidget(vaultBoy);
 
@@ -98,20 +108,20 @@ namespace Pipboy2K
             //lua.Registry.
 
             // UICanvas canvas = new UICanvas();
-            // canvas.Position = new Vector2(100, 100);
+            // canvas.transform.Position = new Vector2(100, 100);
             // //canvas.UseAnchorPoint = true;
             // //canvas.AnchorPoint = new Vector2(0.5f, 0.5f);
             // //canvas.PivotPoint = new Vector2(0.5f, 0.5f);
 
-            // canvas.AddChild(new UIText("Hello World!"));
+            // canvas.transform.AddChild(new UIText("Hello World!"));
 
             // var _textElement = new UIText("Hiii");
-            // _textElement.Position = new Vector2(0, 50);
-            // canvas.AddChild(_textElement);
+            // _textElement.transform.Position = new Vector2(0, 50);
+            // canvas.transform.AddChild(_textElement);
 
 
 
-            //canvas.Prepare();
+            // canvas.renderer.Prepare();
 
             //ui.AddWidget(canvas);
 
@@ -124,17 +134,19 @@ namespace Pipboy2K
 
             int boyIndex = 0;
 
-            CanvasSprite entity = new CanvasSprite(delegate(CanvasSprite ent)
-            {
-                Vector2 _startPos = new Vector2(0, 0);
+            // CanvasSprite entity = new CanvasSprite(delegate(CanvasSprite ent)
+            // {
+            //     Vector2 _startPos = new Vector2(0, 0);
 
-                ent.DrawLineEx(_startPos + new Vector2(0, 100), _startPos + new System.Numerics.Vector2(100, 0), 4, Color.Red);
-                Raylib.DrawRectangleRec(ent.SpriteRect, Color.Gold);
-                //Raylib.DrawText(ent.Rect.ToString(), 200, 200, 16, Color.Red);
-                //Console.WriteLine(ent.Bounds.ToString());
-            });
+            //     ent.DrawLineEx(_startPos + new Vector2(0, 100), _startPos + new System.Numerics.Vector2(100, 0), 4, Color.Red);
+            //     Raylib.DrawRectangleRec(ent.SpriteRect, Color.Gold);
+            //     //Raylib.DrawText(ent.Rect.ToString(), 200, 200, 16, Color.Red);
+            //     //Console.WriteLine(ent.Bounds.ToString());
+            // });
 
              _onResize();
+
+             ui.Invalidate();
 
             while (!Raylib.WindowShouldClose())
             {
@@ -153,10 +165,10 @@ namespace Pipboy2K
                     {
                         foreach (var widget in _widgets)
                         {
-                            Console.WriteLine($"{new String('#', depth + 1)} Name: '{widget.GetType().ToString()}' Pos: '{widget.Position}', SpritePos: {widget.SpritePosition} Rect: '{widget.BoundingBox}'");
-                            if (widget.Children != null)
+                            Console.WriteLine($"{new String('#', depth + 1)} Name: '{widget.GetType().ToString()}' Pos: '{widget.transform.Position}', SpritePos: {widget.renderer.GetSpritePosition} Rect: '{widget.transform.BoundingBox}', RenderTransform: {widget.renderer.GetRenderTransform.ToString()}");
+                            if (widget.transform.Children != null)
                             {
-                                Dive(widget.Children, depth + 1);
+                                Dive(widget.transform.Children, depth + 1);
                             }
                         }
                     }
@@ -170,8 +182,13 @@ namespace Pipboy2K
                     Console.WriteLine("##### END #####");
                 }
 
-                if (Raylib.IsKeyPressed(KeyboardKey.Space))
-                    entity.SpritePosition += new Vector2(10, 0);
+                if (Raylib.IsKeyPressed(KeyboardKey.F10))
+                {
+                    ui.Invalidate();
+                }
+
+                // if (Raylib.IsKeyPressed(KeyboardKey.Space))
+                //     entity.SpritePosition += new Vector2(10, 0);
 
                 if (Raylib.IsKeyPressed(KeyboardKey.D))
                 {
@@ -229,7 +246,8 @@ namespace Pipboy2K
 
                 if (Raylib.IsKeyPressed(KeyboardKey.Enter))
                 {
-                    tabbedView.Position += new Vector2(5, 5);
+                    //tabbedView.transform.Position += new Vector2(5, 5);
+                    Console.WriteLine(tabbedView.Layout.UsePositionType.ToString() + ", " + tabbedView.Layout.AnchorPoint);
                 }
 
                 Raylib.BeginDrawing();
@@ -248,8 +266,8 @@ namespace Pipboy2K
                 //Raylib.DrawTextureRec(boy, boyRect, new System.Numerics.Vector2(200, 200), Color.White);
                 //Raylib.DrawTextureNPatch()
 
-                Raylib.DrawText("Status: " + statusModule.Position.ToString(), 200, 300, 18, Color.White);
-                Raylib.DrawText("Tabbed:" + tabbedView.Position.ToString(), 200, 350, 18, Color.White);
+                Raylib.DrawText("Status: " + statusModule.transform.Position.ToString(), 200, 300, 18, Color.White);
+                Raylib.DrawText("Tabbed:" + tabbedView.transform.Position.ToString(), 200, 350, 18, Color.White);
                 Raylib.DrawText("Mouse: " + Raylib.GetMousePosition().ToString(), 200, 400, 18, Color.RayWhite);
                 //Raylib.DrawText("Time: " + TIME.ToString(), 200, 450, 18, Color.RayWhite);
                 //Raylib.DrawText("FPS: " + Raylib.GetFrameTime(), 200, 500, 18, Color.RayWhite);

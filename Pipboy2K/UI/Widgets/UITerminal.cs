@@ -47,7 +47,7 @@ public class UITerminal : UIWidget
     // Font
     private Font _terminalFont = GS.RobotoRFont;
 
-    public override void Paint()
+    protected override void Draw(WidgetRenderer e, RenderTransform transform)
     {
         for (int y = 0; y < GridHeight; y++)
         {
@@ -69,7 +69,7 @@ public class UITerminal : UIWidget
 
             Vector2 pos = new Vector2(0, y * TileSize);
 
-            DrawTextEx(_terminalFont, _yText, pos, TileSize, 1f, Color.Green);
+            e.DrawTextEx(_terminalFont, _yText, pos, TileSize, 1f, Color.Green);
         }
 
         // for (int x = 0; x < GridWidth; x++)
