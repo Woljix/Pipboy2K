@@ -64,12 +64,18 @@ namespace Pipboy2K
 
             // Top Menu
             TabbedView tabbedView = ui.Instantiate<TabbedView>();
-            tabbedView.Layout = new LayoutStyle()
-            {
-                UsePositionType = LayoutStyle.PositionType.AnchorPoint,
-                AnchorPoint = new (0.0f, 0.0f),
-                PivotPoint = new (0.0f, 0.0f)
-            };
+
+            tabbedView.Layout = LayoutStyleBuilder.Begin()
+                .PositionAnchorPoint(
+                    new (0.0f, 0.0f), new (0.0f, 0.0f))
+                .Build();
+
+            // tabbedView.Layout = new LayoutStyle()
+            // {
+            //     UsePositionType = LayoutStyle.PositionType.AnchorPoint,
+            //     AnchorPoint = new (0.0f, 0.0f),
+            //     PivotPoint = new (0.0f, 0.0f)
+            // };
             tabbedView.transform.Position = new Vector2(300, 300);
             tabbedView.renderer.Prepare();
             //tabbedView.Position = new Vector2(0, 0);
@@ -91,12 +97,10 @@ namespace Pipboy2K
             Raylib.GenTextureMipmaps(ref boy);
 
             UISprite vaultBoy = new UISprite(boy, 169, 240);
-            vaultBoy.Layout = new LayoutStyle()
-            {
-                UsePositionType = LayoutStyle.PositionType.AnchorPoint,
-                AnchorPoint = new (0.5f, 0.5f),
-                PivotPoint = new (0.5f, 0.5f)
-            };
+            vaultBoy.Layout = LayoutStyleBuilder.Begin()
+                .PositionAnchorPoint(
+                    new (0.5f, 0.5f),new (0.5f, 0.5f))
+                .Build();
             vaultBoy.FrameStep = 0.12f;
 
             vaultBoy.renderer.Prepare();
@@ -107,23 +111,23 @@ namespace Pipboy2K
 
             //lua.Registry.
 
-            // UICanvas canvas = new UICanvas();
-            // canvas.transform.Position = new Vector2(100, 100);
-            // //canvas.UseAnchorPoint = true;
-            // //canvas.AnchorPoint = new Vector2(0.5f, 0.5f);
-            // //canvas.PivotPoint = new Vector2(0.5f, 0.5f);
+            UICanvas canvas = new UICanvas();
+            canvas.transform.Position = new Vector2(100, 200);
+            //canvas.UseAnchorPoint = true;
+            //canvas.AnchorPoint = new Vector2(0.5f, 0.5f);
+            //canvas.PivotPoint = new Vector2(0.5f, 0.5f);
 
-            // canvas.transform.AddChild(new UIText("Hello World!"));
+            canvas.transform.AddChild(new UIText("Hello World!"));
 
-            // var _textElement = new UIText("Hiii");
-            // _textElement.transform.Position = new Vector2(0, 50);
-            // canvas.transform.AddChild(_textElement);
+            var _textElement = new UIText("Hiii");
+            _textElement.transform.Position = new Vector2(-50, -50);
+            canvas.transform.AddChild(_textElement);
 
 
 
-            // canvas.renderer.Prepare();
+            canvas.renderer.Prepare();
 
-            //ui.AddWidget(canvas);
+            ui.AddWidget(canvas);
 
             //UITerminal term = new UITerminal();
             //term.ClearGrid();
@@ -165,7 +169,7 @@ namespace Pipboy2K
                     {
                         foreach (var widget in _widgets)
                         {
-                            Console.WriteLine($"{new String('#', depth + 1)} Name: '{widget.GetType().ToString()}' Pos: '{widget.transform.Position}', SpritePos: {widget.renderer.GetSpritePosition} Rect: '{widget.transform.BoundingBox}', RenderTransform: {widget.renderer.GetRenderTransform.ToString()}");
+                            Console.WriteLine($"{new String('#', depth + 1)} Name: '{widget.GetType().ToString()}' Pos: '{widget.transform.Position}', GetSpritePos: {widget.renderer.GetSpritePosition} BB: '{widget.renderer.GetRenderTransform.BoundingBox}', RenderTransform: {widget.renderer.GetRenderTransform.ToString()}");
                             if (widget.transform.Children != null)
                             {
                                 Dive(widget.transform.Children, depth + 1);

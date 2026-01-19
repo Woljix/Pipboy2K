@@ -6,6 +6,7 @@ namespace Pipboy2K.UI;
 
 /// <summary>
 /// Output render transform.
+/// This should represent where the Widget is actually drawn on screen.
 /// </summary>
 public struct RenderTransform
 {
@@ -55,7 +56,7 @@ public struct RenderTransform
 
 public class WidgetRenderer : RawSprite
 {
-    UIWidget refWidget;
+    private UIWidget refWidget;
 
     private bool IsInvalid = true;
 
@@ -103,7 +104,7 @@ public class WidgetRenderer : RawSprite
 
             active = false; // Reset min & max (TODO: This does not have to happen every frame, only when something changes.)
 
-            rTransform.RenderBounds = this.refWidget.transform.ScreenBounds;
+            rTransform.RenderBounds = this.refWidget.transform.Bounds;
 
             rTransform.BoundingBox = this.refWidget.transform.CalculateBoundingBox();
 
@@ -139,13 +140,17 @@ public class WidgetRenderer : RawSprite
                 break;
             }
             _renderTransform = rTransform;
-
         }
 
         if (OnPaint != null)
             OnPaint.Invoke(this, this._renderTransform);
 
         if (GS.DebugMode)
+        {
+
+
             Raylib.DrawRectangleLinesEx(SpriteRect, 2, Color.Red);
+        }
+
     }
 }

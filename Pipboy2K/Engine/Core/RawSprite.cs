@@ -25,7 +25,7 @@ public abstract class RawSprite
     /// Size of the sprite determited by the rendering calls.
     /// </summary>
     public Vector2 SpriteSize {get; private set; } = Vector2.Zero;
-    public Vector2 SpritePosition
+    public Vector2 _localSpritePos
     {
         get; set;
     }
@@ -34,7 +34,7 @@ public abstract class RawSprite
 
     public virtual Vector2 GetSpritePosition
     {
-        get { return SpritePosition; } set { SpritePosition = value;}
+        get { return _localSpritePos; } set { _localSpritePos = value;}
     }
 
     public (Vector2, Vector2) GetMinMax
@@ -110,6 +110,7 @@ public abstract class RawSprite
 
     }
 
+    [Obsolete]
     public void DrawTextureEx(Texture2D texture, Vector2 position, float rotation, float scale, Color tint)
     {
         // TODO
