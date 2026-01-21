@@ -21,21 +21,20 @@ public abstract class RawSprite
     protected bool active = false;
     private bool _ready = false;
 
-    /// <summary>
-    /// Size of the sprite determited by the rendering calls.
-    /// </summary>
-    public Vector2 SpriteSize {get; private set; } = Vector2.Zero;
-    public Vector2 _localSpritePos
-    {
-        get; set;
-    }
+    public Vector2 _localSpritePos {get; private set;} = Vector2.Zero;
+    public Vector2 _spriteSize { get; private set;} = Vector2.Zero;
 
-    public Rectangle SpriteRect { get { return new Rectangle(GetSpritePosition, SpriteSize); }}
+    public Rectangle SpriteRect { get { return new Rectangle(GetSpritePosition, GetSpriteSize); }}
 
     public virtual Vector2 GetSpritePosition
     {
         get { return _localSpritePos; } set { _localSpritePos = value;}
     }
+
+    /// <summary>
+    /// Size of the sprite determited by the rendering calls.
+    /// </summary>
+    public virtual Vector2 GetSpriteSize {get { return _spriteSize; } set { _spriteSize = value;} }
 
     public (Vector2, Vector2) GetMinMax
     {
@@ -62,7 +61,7 @@ public abstract class RawSprite
         max.X = MathF.Max(max.X, point.X);
         max.Y = MathF.Max(max.Y, point.Y);
 
-        SpriteSize = max - min;
+        GetSpriteSize = max - min;
     }
 
     public void DrawLineEx(Vector2 startPos, Vector2 endPos, float thick, Color color)
@@ -137,8 +136,6 @@ public abstract class RawSprite
 
         if (!_ready)
             _ready = true;
-
-
     }
 
     // Might not be needed

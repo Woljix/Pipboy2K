@@ -104,7 +104,7 @@ public class TabbedView : UIWidget
 
         float _thiccnessOffset = MathF.Round(_lineThickness / 2.0f);
 
-        Vector2 centerOfBounds = new Vector2((transform.GetWindowSize.X / 2), (transform.GetWindowSize.Y / 2));
+        Vector2 centerOfBounds = new Vector2((GS.ScreenBounds.X / 2), (GS.ScreenBounds.X / 2));
 
         int _currentOffset = (int)(centerOfBounds.X - (_tabWidth / 2));
 
@@ -161,7 +161,7 @@ public class TabbedView : UIWidget
                 // End line segment after tab.
                 e.DrawLineEx(
                     new Vector2(xPos + textSize.X + (_lineThickness * 3), _lineOffset),
-                    new Vector2(transform.GetWindowSize.X,  _lineOffset),
+                    new Vector2(GS.ScreenBounds.X,  _lineOffset),
                     _lineThickness,
                     Color.Green);
 

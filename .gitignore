@@ -61,3 +61,4 @@ nunit-*.xml
 /external/
 /output/
 .vscode/
+.vs/

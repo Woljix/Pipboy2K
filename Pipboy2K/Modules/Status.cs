@@ -1,6 +1,8 @@
+using System.Drawing;
 using System.Numerics;
 using Pipboy2K.UI;
 using Raylib_cs;
+using Color = Raylib_cs.Color;
 using static Pipboy2K.GS;
 
 namespace Pipboy2K.Modules;
@@ -33,8 +35,8 @@ public class Status : UIWidget
                 int currentX = 0;
                 int pad = statusBarPadding;
 
-                int width25 = (int)(transform.RenderBounds.Width * 0.25f);
-                int width50 = (int)(transform.RenderBounds.Width * 0.50f);
+                int width25 = (int)(GS.ScreenBounds.X * 0.25f);
+                int width50 = (int)(GS.ScreenBounds.X * 0.50f);
 
                 // --- Segment 1 (25%) ---
                 e.DrawRectangle(currentX, yPos, width25 - pad, statusBarHeight, Color.DarkGreen);

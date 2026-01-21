@@ -9,7 +9,12 @@ public class UIManager
 
     public event Action<Vector2>? OnResize;
 
-    public UIManager() { }
+    private Queue<UIWidget> _widgetMarkedForDeletetion;
+
+    public UIManager()
+    {
+        _widgetMarkedForDeletetion = new Queue<UIWidget>();
+    }
 
     public T Instantiate<T>() where T : UIWidget, new()
     {
@@ -24,6 +29,18 @@ public class UIManager
         Widgets.Add(widget);
     }
 
+    public void RemoveWidget(UIWidget widget)
+    {
+        if (Widgets.Contains(widget))
+        {
+            _widgetMarkedForDeletetion.Enqueue(widget);
+        }
+        else
+        {
+            Console.WriteLine($"{widget.GetType()} does not exist in Widgets!");
+        }
+    }
+
     public bool _ready = false;
 
     /// <summary>
@@ -34,6 +51,16 @@ public class UIManager
 
     public void Tick()
     {
+        if (_widgetMarkedForDeletetion.Any())
+        {
+            while (_widgetMarkedForDeletetion.Count > 0)
+            {
+                var _delWidget = _widgetMarkedForDeletetion.Dequeue();
+
+                this.Widgets.Remove(_delWidget);
+            }
+        }
+
         if (_shouldInvalidate)
         {
             Invalidate();
@@ -54,11 +81,17 @@ public class UIManager
 
         foreach (UIWidget widget in Widgets)
         {
+            if (!widget.Enabled)
+                return;
+
             widget.Update();
         }
 
         foreach (UIWidget widget in Widgets)
         {
+            if (!widget.Enabled)
+                return;
+
             widget.PaintFamily();
         }
 
