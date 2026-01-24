@@ -1,9 +1,11 @@
 using System.Drawing;
 using System.Numerics;
-using Pipboy2K.UI;
+//using Pipboy2K.UI;
 using Raylib_cs;
 using Color = Raylib_cs.Color;
 using static Pipboy2K.GS;
+
+using Pipboy2K.Engine;
 
 namespace Pipboy2K.Modules;
 
@@ -12,11 +14,6 @@ public class Status : UIWidget
 {
     private int statusBarHeight = 45;
     private int statusBarPadding = 2;
-
-    public Status()
-    {
-
-    }
 
     public override void Update()
     {
@@ -40,7 +37,7 @@ public class Status : UIWidget
 
                 // --- Segment 1 (25%) ---
                 e.DrawRectangle(currentX, yPos, width25 - pad, statusBarHeight, Color.DarkGreen);
-                e.DrawTextEx(GS.RobotoBFont, "HP 97/100", new Vector2(currentX + pad, yPos + pad), 36, 1.0f, Color.Green);
+                e.DrawText(GS.RobotoBFont, "HP 97/100", new Vector2(currentX + pad, yPos + pad), 36, 1.0f, Color.Green);
 
                 // Move X pointer to the next segment
                 currentX += width25 + pad;

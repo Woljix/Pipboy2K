@@ -3,9 +3,8 @@ using System.Numerics;
 using Raylib_cs;
 using Rectangle = Raylib_cs.Rectangle;
 using Color = Raylib_cs.Color;
-using Pipboy2K.UI;
 
-namespace Pipboy2K.Engine.Core;
+namespace Pipboy2K.Engine.UI.Internal;
 
 // Pseudo Sprite class
 /*
@@ -26,10 +25,7 @@ public abstract class RawSprite
 
     public Rectangle SpriteRect { get { return new Rectangle(GetSpritePosition, GetSpriteSize); }}
 
-    public virtual Vector2 GetSpritePosition
-    {
-        get { return _localSpritePos; } set { _localSpritePos = value;}
-    }
+    public virtual Vector2 GetSpritePosition { get { return _localSpritePos; } set { _localSpritePos = Vector2.Round(value);}}
 
     /// <summary>
     /// Size of the sprite determited by the rendering calls.
@@ -64,7 +60,7 @@ public abstract class RawSprite
         GetSpriteSize = max - min;
     }
 
-    public void DrawLineEx(Vector2 startPos, Vector2 endPos, float thick, Color color)
+    public void DrawLine(Vector2 startPos, Vector2 endPos, float thick, Color color)
     {
         Expand(startPos + new Vector2(-thick / 2, -thick / 2));
         Expand(endPos + new Vector2(-thick / 2, -thick / 2));
@@ -87,7 +83,7 @@ public abstract class RawSprite
         this.DrawRectangleRec(new Rectangle(x, y, width, height), color);
     }
 
-    public void DrawTextEx(Font font, string text, Vector2 position, float fontSize, float spacing, Color tint)
+    public void DrawText(Font font, string text, Vector2 position, float fontSize, float spacing, Color tint)
     {
         Vector2 textSize = Raylib.MeasureTextEx(font, text, fontSize, spacing);
         Expand(position);
@@ -96,18 +92,21 @@ public abstract class RawSprite
             Raylib.DrawTextEx(font, text, GetSpritePosition + position, fontSize, spacing, tint);
     }
 
-    public void DrawTextureRec(Texture2D texture, Rectangle source, Vector2 position, Color tint)
+    public void DrawTexture(Texture2D texture, Rectangle source, Vector2 position, Color tint)
     {
         Expand(new (position.X, position.Y));
         Expand(new (position.X + source.Width, position.Y + source.Height));
         if (_ready)
+            //Raylib.DrawTexturePro(texture, source, )
             Raylib.DrawTextureRec(texture, source, GetSpritePosition + position, tint);
     }
 
-    public void DrawTexture()
-    {
-
-    }
+    // public void DrawTexturePro(Texture2D texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint)
+    // {
+    //     Expand(new (position.X, position.Y));
+    //     Expand(new (position.X + source.Width, position.Y + source.Height));
+    //     Raylib.DrawTexturePro(texture, source, dest, origin, rotation, tint);
+    // }
 
     [Obsolete]
     public void DrawTextureEx(Texture2D texture, Vector2 position, float rotation, float scale, Color tint)

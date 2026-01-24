@@ -1,5 +1,5 @@
 using System.Numerics;
-using Pipboy2K.UI;
+
 using Raylib_cs;
 using static Pipboy2K.GS;
 
@@ -31,7 +31,7 @@ public class TabbedView : UIWidget
 
     private float _tabWidth = 0;
 
-    public TabbedView()
+    public override void Initialize()
     {
         tabs.Add(
             new TabBuilder("STATS")
@@ -70,7 +70,7 @@ public class TabbedView : UIWidget
         _tabWidth = CalculateWidthOfTabs(_cachedTabNames, GS.RobotoBFont, 38);
 
         Console.WriteLine($"Tab Width: {_tabWidth}");
-    }
+    }  
 
     private float CalculateWidthOfTabs(List<string> tabNames, Font font, int fontSize)
     {
@@ -114,22 +114,20 @@ public class TabbedView : UIWidget
             Vector2 textSize = Raylib.MeasureTextEx(GS.RobotoBFont, tabName, 38, 1.0f);
             float xPos = _currentOffset;
 
-            //Raylib.DrawCircle((int)xPos, 0, 5, Color.Red);
-
             _currentOffset += (int)(textSize.X + TabSpacing);
 
             // If selected, draw the green line so that is snakes under tabs that are not selected, then around and over the selected the tab, then down again and continues under.
             if (i == selectedTabIndex)
             {
                 // Left line of the tab.
-                e.DrawLineEx(
+                e.DrawLine(
                     new Vector2(xPos - (_lineThickness * 3), _lineOffset + _thiccnessOffset),
                     new Vector2(xPos - (_lineThickness * 3),  _lineOffset - (textSize.Y - _lineThickness * 2)),
                     _lineThickness,
                     Color.Green);
 
                 // Right line of the tab
-                e.DrawLineEx(
+                e.DrawLine(
                     new Vector2(xPos + textSize.X + (_lineThickness * 3), _lineOffset + _thiccnessOffset),
                     new Vector2(xPos + textSize.X + (_lineThickness * 3), _lineOffset - (textSize.Y - _lineThickness * 2)),
                     _lineThickness,
@@ -138,28 +136,28 @@ public class TabbedView : UIWidget
                 float _lineY = _lineOffset - (textSize.Y - _lineThickness * 2.5f);
 
                 // Top-left line of the tab.
-                e.DrawLineEx(
+                e.DrawLine(
                     new Vector2(xPos - (_lineThickness * 3) + _thiccnessOffset, _lineY),
                     new Vector2(xPos - _lineThickness, _lineY),
                     _lineThickness,
                     Color.Green);
 
                 // Top-right line of the tab.
-                e.DrawLineEx(
+                e.DrawLine(
                     new Vector2(xPos + textSize.X + (_lineThickness * 3) - _thiccnessOffset, _lineY),
                     new Vector2(xPos + textSize.X + _lineThickness, _lineY),
                     _lineThickness,
                     Color.Green);
 
                 // First line segment to start of tab.
-                e.DrawLineEx(
+                e.DrawLine(
                     new Vector2(0, _lineOffset),
                     new Vector2(xPos - (_lineThickness * 3) + _thiccnessOffset, _lineOffset),
                     _lineThickness,
                     Color.Green);
 
                 // End line segment after tab.
-                e.DrawLineEx(
+                e.DrawLine(
                     new Vector2(xPos + textSize.X + (_lineThickness * 3), _lineOffset),
                     new Vector2(GS.ScreenBounds.X,  _lineOffset),
                     _lineThickness,
@@ -196,13 +194,13 @@ public class TabbedView : UIWidget
 
                     Color _color = (j == selectedSubTabIndex) ? Color.Green : Color.DarkGreen;
 
-                    e.DrawTextEx(GS.RobotoRFont, subTabName, new Vector2(subTabXPos, _lineOffset + _thiccnessOffset), 38, 1.0f, _color);
+                    e.DrawText(GS.RobotoRFont, subTabName, new Vector2(subTabXPos, _lineOffset + _thiccnessOffset), 38, 1.0f, _color);
                 }
 
                 #endregion
             }
 
-            e.DrawTextEx(GS.RobotoBFont, tabName, new Vector2(xPos, _lineOffset - textSize.Y - _thiccnessOffset), 38, 1.0f, Color.Green);
+            e.DrawText(GS.RobotoBFont, tabName, new Vector2(xPos, _lineOffset - textSize.Y - _thiccnessOffset), 38, 1.0f, Color.Green);
         }
     }
 

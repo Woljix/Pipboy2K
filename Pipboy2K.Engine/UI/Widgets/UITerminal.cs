@@ -4,7 +4,7 @@ using Raylib_cs;
 using Color = Raylib_cs.Color;
 using Rectangle = Raylib_cs.Rectangle;
 
-namespace Pipboy2K.UI.Widgets;
+namespace Pipboy2K.Engine.UI.Widgets;
 
 public struct GridV2
 {
@@ -45,7 +45,8 @@ public class UITerminal : UIWidget
     public GridV2 CursorPos {get; private set;} = GridV2.Zero;
 
     // Font
-    private Font _terminalFont = GS.RobotoRFont;
+    //private Font _terminalFont = GS.RobotoRFont;
+    private Font _terminalFont = Raylib.GetFontDefault();
 
     protected override void Draw(WidgetRenderer e, RenderTransform transform)
     {
@@ -69,7 +70,7 @@ public class UITerminal : UIWidget
 
             Vector2 pos = new Vector2(0, y * TileSize);
 
-            e.DrawTextEx(_terminalFont, _yText, pos, TileSize, 1f, Color.Green);
+            e.DrawText(_terminalFont, _yText, pos, TileSize, 1f, Color.Green);
         }
 
         // for (int x = 0; x < GridWidth; x++)

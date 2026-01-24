@@ -1,12 +1,12 @@
 using System.Numerics;
 using Raylib_cs;
 
-namespace Pipboy2K.UI.Widgets;
+namespace Pipboy2K.Engine.UI.Widgets;
 
 public class UIText : UIWidget
 {
     public string Text = string.Empty;
-    public Font Font = GS.RobotoRFont;
+    public Font? Font;
 
     public float FontSize = 28;
     public float Spacing = 1.0f;
@@ -26,5 +26,16 @@ public class UIText : UIWidget
             this.Color = Color.Value;
     }
 
-    protected override void Draw(WidgetRenderer e, RenderTransform transform) => e.DrawTextEx(Font, Text, Vector2.Zero, FontSize, Spacing, Color);
+    public override void Initialize()
+    {
+        if (Font == null)
+            this.Font = UI.Config.DefaultFont;
+    }
+
+    public override void OnStart()
+    {
+
+    }
+
+    protected override void Draw(WidgetRenderer e, RenderTransform transform) => e.DrawText(Font.Value, Text, Vector2.Zero, FontSize, Spacing, Color);
 }

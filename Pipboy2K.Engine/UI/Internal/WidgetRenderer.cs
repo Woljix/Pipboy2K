@@ -2,7 +2,7 @@ using System.Numerics;
 using Pipboy2K.Engine.Core;
 using Raylib_cs;
 
-namespace Pipboy2K.UI;
+namespace Pipboy2K.Engine.UI.Internal;
 
 /// <summary>
 /// Output render transform.
@@ -111,7 +111,8 @@ public class WidgetRenderer : RawSprite
 
         //Console.WriteLine($"Invalidating: {this.refWidget.GetType().ToString()}");
 
-        Rectangle parentalBounds = refWidget.HasParent ? refWidget.Parent.renderer.GetRenderTransform.RenderBounds : new Rectangle(0,0, GS.ScreenBounds);
+        Rectangle parentalBounds = refWidget.HasParent ? refWidget.Parent!.renderer.GetRenderTransform.RenderBounds : new Rectangle(0,0, Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
+        //parentalBounds.Size *= GS.UIScalingFactor;
 
         //Console.WriteLine();
 
@@ -125,7 +126,7 @@ public class WidgetRenderer : RawSprite
 
             default:
             case LayoutStyle.AutoSizeType.Manual:
-                rTransform.Size = new Vector2(_layout.Width, _layout.Height);
+                rTransform.Size = new Vector2(_layout.Width, _layout.Height) ;
                 break;
         }
 
@@ -144,7 +145,7 @@ public class WidgetRenderer : RawSprite
                 // Why the fuck do i need to do this? Did i accidentally invert the world and local positions?
                 //LocalPosition = ancPos;
 
-                rTransform.Position = ancPos;
+                rTransform.Position = Vector2.Round(ancPos, MidpointRounding.AwayFromZero);
 
                 break;
 
@@ -167,14 +168,12 @@ public class WidgetRenderer : RawSprite
             doInvalidate();
         }
 
-
         if (OnPaint != null)
             OnPaint.Invoke(this, this._renderTransform);
 
-        if (GS.DebugMode)
+        if (refWidget.UI != null && refWidget.UI.DebugMode)
         {
             Raylib.DrawRectangleLinesEx(GetRenderTransform.RenderBounds, 2, Color.Red);
         }
-
     }
 }

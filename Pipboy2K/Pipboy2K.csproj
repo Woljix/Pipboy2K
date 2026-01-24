@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <PackageReference Include="LuaCSharp" Version="0.5.2" />
-    <PackageReference Include="Raylib-cs" Version="7.0.2" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -25,6 +24,11 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </None>
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pipboy2K.Engine\Pipboy2K.Engine.csproj" />
   </ItemGroup>
 
 

@@ -1,14 +1,23 @@
-﻿using System;
+﻿global using Pipboy2K.Modules;
+global using Pipboy2K.Engine.Core;
+
+global using Pipboy2K.Engine;
+global using Pipboy2K.Engine.UI;
+global using Pipboy2K.Engine.UI.Widgets;
+global using Pipboy2K.Engine.UI.Internal;
+global using Pipboy2K.Engine.UI.Layout;
+
+using System;
+using System.Numerics;
 using Raylib_cs;
 using Lua;
 
-using Pipboy2K.UI;
-using Pipboy2K.Modules;
-using Pipboy2K.Engine.Core;
-using System.Numerics;
-using Pipboy2K.UI.Widgets;
-using Pipboy2K.UI.Layout;
-using Pipboy2K.UI.Widgets.Extra;
+//using Pipboy2K.UI;
+
+
+//using Pipboy2K.UI.Widgets;
+//using Pipboy2K.UI.Layout;
+//using Pipboy2K.UI.Widgets.Extra;
 
 namespace Pipboy2K
 {
@@ -40,16 +49,17 @@ namespace Pipboy2K
         [STAThread]
         public static void Main(string[] args)
         {
+            //BoyState state = new BoyState();
+
             Settings settings = Settings.Load();
-            UIManager ui = new UIManager();
 
-            Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);
+            Raylib.SetConfigFlags(ConfigFlags.ResizableWindow | ConfigFlags.Msaa4xHint);
 
-            #if DEBUG
-                string _buildTag = "DEBUG";
-            #else
+#if DEBUG
+            string _buildTag = "DEBUG";
+#else
                 string _buildTag = "RELEASE";
-            #endif
+#endif
 
             Raylib.InitWindow(settings.WindowWidth, settings.WindowHeight, $"Pip-boy 2000 MK VI | In-dev ({_buildTag})");
             Raylib.SetTargetFPS(settings.TargetFPS);
@@ -57,38 +67,35 @@ namespace Pipboy2K
             // TODO: Turn this into an actual event.
             void _onResize()
             {
-                GS.ScreenBounds = new (Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
+                GS.ScreenBounds = new(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
             }
 
             // GC has to be initialized after Raylib.InitWindow, because it loads fonts that require a valid Raylib context.
-            GS.Init(settings, ui);
+            GS.Init(settings);
+
+            UIManager ui = new UIManager(new UIManagerConfig()
+            {
+                DefaultFont = GS.RobotoBFont,
+                DebugMode = true,
+            });
 
             // Top Menu
-            TabbedView tabbedView = ui.Instantiate<TabbedView>();
 
-            tabbedView.Layout = LayoutStyleBuilder.Begin()
-                .PositionAnchorPoint(
-                    new (0.0f, 0.0f), new (0.0f, 0.0f))
-                .Build();
-
-            // tabbedView.Layout = new LayoutStyle()
-            // {
-            //     UsePositionType = LayoutStyle.PositionType.AnchorPoint,
-            //     AnchorPoint = new (0.0f, 0.0f),
-            //     PivotPoint = new (0.0f, 0.0f)
-            // };
-            //tabbedView.Position = new Vector2(300, 300);
-            tabbedView.renderer.Prepare();
-            //tabbedView.Position = new Vector2(0, 0);
-
-            Status statusModule = ui.Instantiate<Status>();
-            statusModule.Layout = new LayoutStyle()
+            TabbedView tabbedView = (TabbedView)ui.AddWidget(new TabbedView()
             {
-                UsePositionType = LayoutStyle.PositionType.AnchorPoint,
-                AnchorPoint = new (0, 1f),
-                PivotPoint = new (0, 1f)
-            };
-            statusModule.renderer.Prepare();
+                Layout = LayoutStyleBuilder.Begin().PositionAnchorPoint(new(0.0f, 0.0f), new(0.0f, 0.0f)).Build()
+            });
+
+            ui.AddWidget(new Status()
+            {
+                Layout = new LayoutStyle()
+                {
+                    UsePositionType = LayoutStyle.PositionType.AnchorPoint,
+                    AnchorPoint = new(0, 1f),
+                    PivotPoint = new(0, 1f)
+                }
+            });
+
 
             //Console.WriteLine(GS.Bounds.ToString());
             //statusModule.Position = new Vector2(0, 0);
@@ -97,32 +104,42 @@ namespace Pipboy2K
             Texture2D boy = Raylib.LoadTexture("resources/sprites/vaultboy_thumbsup_anim.png");
             Raylib.GenTextureMipmaps(ref boy);
 
-            UISprite vaultBoy = new UISprite(boy, 169, 240);
-            vaultBoy.Layout = LayoutStyleBuilder.Begin()
+            var vaultBoy = ui.AddWidget(new UISprite(boy, 169, 240)
+            {
+                Layout = LayoutStyleBuilder.Begin()
                 .PositionAnchorPoint(
-                    new (0.5f, 0.5f),new (0.5f, 0.5f))
-                .Build();
-            vaultBoy.FrameStep = 0.12f;
-            var _text = new UIText("Vault Boy welcomes you!");
-            _text.Layout = LayoutStyleBuilder.Begin().PositionAnchorPoint(new (0.5f, 0.0f), new (0.5f, 0.5f)).Build();
+                    new(0.5f, 0.5f), new(0.5f, 0.5f))
+                .Build(),
 
-            vaultBoy.AddChild(_text);
+                FrameStep = 0.12f,
+                IsAnimated = true
 
-            vaultBoy.renderer.Prepare();
+            });
 
-            ui.AddWidget(vaultBoy);
+            ui.AddWidget(new UIText("Vault Boy welcomes you!", GS.RobotoBFont)
+            {
+                Layout = LayoutStyleBuilder.Begin().PositionAnchorPoint(new(0.5f, 0.0f), new(0.5f, 0.5f)).Build(),
+            }, vaultBoy);
+
+
+            //ui.AddWidget(vaultBoy);
 
             LuaState lua = LuaState.Create();
 
+            // using (Game game = Game.GetOrCreate())
+            // {
+            //     game.Run();
+            // }
+
             //lua.Registry.
 
-            UICanvas canvas = new UICanvas();
-            canvas.Layout = LayoutStyleBuilder.Begin()
-                .PositionAnchorPoint(new (0.7f, 0f), new (0.7f, 0f))
-                .SizeManual(300, 300)
-            .Build();
+            // UICanvas canvas = ui.Instantiate<UICanvas>();
+            // canvas.Layout = LayoutStyleBuilder.Begin()
+            //     .PositionAnchorPoint(new(0.7f, 0f), new(0.7f, 0f))
+            //     .SizeManual(300, 300)
+            // .Build();
 
-            canvas.AddChild(new UIText("Hello World!") { Layout = LayoutStyleBuilder.From(canvas.Layout).PositionAnchorPoint(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.0f)).Build()});
+            // canvas.AddChild(new UIText() { Text = "Hello World!", Layout = LayoutStyleBuilder.From(canvas.Layout).PositionAnchorPoint(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.0f)).Build() });
             //canvas.UseAnchorPoint = true;
             //canvas.AnchorPoint = new Vector2(0.5f, 0.5f);
             //canvas.PivotPoint = new Vector2(0.5f, 0.5f);
@@ -132,9 +149,7 @@ namespace Pipboy2K
             // var _textElement = new UIText("Hiii");
             // canvas.AddChild(_textElement);
 
-            canvas.renderer.Prepare();
-
-            ui.AddWidget(canvas);
+            //ui.AddWidget(canvas);
 
             //UITerminal term = new UITerminal();
             //term.ClearGrid();
@@ -153,9 +168,33 @@ namespace Pipboy2K
             //     //Console.WriteLine(ent.Bounds.ToString());
             // });
 
-             _onResize();
+            _onResize();
 
-             ui.Invalidate();
+            ui.Invalidate();
+
+            string _mousePos = string.Empty;
+
+            Model stimpak = Raylib.LoadModel(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resources/models/stimpak/stimpack.obj"));
+
+            Camera3D _cam = new Camera3D();
+            _cam.FovY = 45f;
+            _cam.Position = new Vector3(2, 3, 2);
+            _cam.Projection = CameraProjection.Perspective;
+            _cam.Target = new Vector3(0, 1, 0);
+            _cam.Up = new Vector3(0, 1, 0);
+
+            RenderTexture2D _rendTex = Raylib.LoadRenderTexture(768, 768);
+
+            ui.AddWidget(new UISprite(_rendTex.Texture, _rendTex.Texture.Width, -_rendTex.Texture.Height)
+            {
+                Layout = LayoutStyleBuilder.Begin().PositionAnchorPoint(new Vector2(0.75f, 0.5f), new Vector2(0.5f, 0.5f)).Build(),
+            });
+
+            float _rotation = 0.0f;
+
+            Color INVISIBLE = new Color(0, 0, 0, 255);
+
+            ui.Start();
 
             while (!Raylib.WindowShouldClose())
             {
@@ -165,12 +204,13 @@ namespace Pipboy2K
                 }
 
                 if (Raylib.IsKeyReleased(KeyboardKey.F3))
-                    GS.DebugMode = !GS.DebugMode;
+                    ui.DebugMode = !ui.DebugMode;
+                //GS.DebugMode = !GS.DebugMode;
 
                 if (Raylib.IsKeyPressed(KeyboardKey.F4))
                 {
                     // Scuffed and dangerous, but fuck.. it works well for what it is ._.
-                    void Dive(List<UIWidget> _widgets, int depth)
+                    void Dive(IEnumerable<UIWidget> _widgets, int depth)
                     {
                         foreach (var widget in _widgets)
                         {
@@ -186,7 +226,7 @@ namespace Pipboy2K
 
                     Console.WriteLine("##### DEBUG DUMP #####");
 
-                    Dive(ui.Widgets, depth);
+                    Dive(ui.GetWidgetsReadOnly, depth);
 
                     Console.WriteLine("##### END #####");
                 }
@@ -195,9 +235,6 @@ namespace Pipboy2K
                 {
                     ui.Invalidate();
                 }
-
-                // if (Raylib.IsKeyPressed(KeyboardKey.Space))
-                //     entity.SpritePosition += new Vector2(10, 0);
 
                 if (Raylib.IsKeyPressed(KeyboardKey.D))
                 {
@@ -219,31 +256,7 @@ namespace Pipboy2K
                     tabbedView.MovePrevSubTab();
                 }
 
-                vaultBoy.Tick();
-
-                // if (Raylib.IsKeyPressed(KeyboardKey.Up))
-                // {
-                //     boyIndex++;
-
-                //     if (boyIndex > 7)
-                //     {
-                //         boyIndex = 0;
-                //     }
-
-                //     vaultBoy.SetFrame(boyIndex);
-                // }
-
-                // if (Raylib.IsKeyPressed(KeyboardKey.Down))
-                // {
-                //     boyIndex--;
-
-                //     if (boyIndex < 0)
-                //     {
-                //         boyIndex = 7;
-                //     }
-
-                //     vaultBoy.SetFrame(boyIndex);
-                // }
+                //vaultBoy.Tick();
 
                 if (Raylib.IsMouseButtonPressed(MouseButton.Left))
                 {
@@ -254,20 +267,79 @@ namespace Pipboy2K
                     //statusModule.Position = Raylib.GetMousePosition();
                 }
 
+                if (Raylib.IsKeyDown(KeyboardKey.Space))
+                {
+                    GS.UIScalingFactor = 0.5f;
+                }
+                else
+                {
+                    GS.UIScalingFactor = 1.0f;
+                }
+
                 if (Raylib.IsKeyPressed(KeyboardKey.Enter))
                 {
-                    MessageBox.Show("TEST!");
+                    MessageBox.Show("TEST!", ui);
                     //tabbedView.transform.Position += new Vector2(5, 5);
                     //Console.WriteLine(tabbedView.Layout.UsePositionType.ToString() + ", " + tabbedView.Layout.AnchorPoint);
                 }
 
+                if (Raylib.IsKeyPressed(KeyboardKey.Left))
+                {
+                    _cam.Position += new Vector3(-1, 0, 0);
+                }
+
+                if (Raylib.IsKeyPressed(KeyboardKey.Right))
+                {
+                    _cam.Position += new Vector3(1, 0, 0);
+                }
+
+                if (Raylib.IsKeyPressed(KeyboardKey.Up))
+                {
+                    _cam.Position += new Vector3(0, 0, 1);
+                }
+
+                if (Raylib.IsKeyPressed(KeyboardKey.Down))
+                {
+                    _cam.Position += new Vector3(0, 0, -1);
+                }
+
+                _rotation += 10.0f * Raylib.GetFrameTime();
+
+                if (_rotation > 360.0f)
+                    _rotation = 0.0f;
+
+                Raylib.UpdateCamera(ref _cam, CameraMode.Orbital);
+
+                Raylib.BeginTextureMode(_rendTex);
+                Raylib.BeginMode3D(_cam);
+                Raylib.ClearBackground(Color.Blank);
+
+
+                //Raylib.DrawMesh()
+
+                //Raylib.DrawCube(Vector3.Zero, 10, 10, 10, Color.Yellow);
+                Raylib.DrawModelEx(stimpak, Vector3.Zero, new(0, 1, 0), _rotation, new Vector3(1, 1, 1), Color.White);
+                //Raylib.DrawGrid(100, 1.0f);
+
+                Raylib.EndMode3D();
+                Raylib.EndTextureMode();
+
+                //_3DSprite.SetTexture(_rendTex.Texture);
+
                 Raylib.BeginDrawing();
 
+                Raylib.ClearBackground(Color.Black);
+
                 // Draw Black background
-                Raylib.DrawRectangleRec(new Rectangle(0,0, GS.ScreenBounds), Color.Black);
+                //Raylib.DrawRectangleRec(new Rectangle(0,0, GS.ScreenBounds), Color.Black);
+
 
                 ui.Tick();
 
+                if (ui.DebugMode)
+                    Raylib.DrawFPS(0, 0);
+
+                //Raylib.DrawTextureRec(_rendTex.Texture, new Rectangle(0, 0, -_rendTex.Texture.Width, _rendTex.Texture.Height), new Vector2(0, 0), Color.White);
 
 
                 //Rectangle boyRect = new Rectangle(169 * boyIndex, 0, 169, 240);
@@ -277,38 +349,15 @@ namespace Pipboy2K
                 //Raylib.DrawTextureRec(boy, boyRect, new System.Numerics.Vector2(200, 200), Color.White);
                 //Raylib.DrawTextureNPatch()
 
-                Raylib.DrawText($"Status: {statusModule.GetPosition}", 200, 300, 18, Color.White);
-                Raylib.DrawText($"Tabbed: {tabbedView.GetPosition}", 200, 350, 18, Color.White);
-                Raylib.DrawText($"Mouse: {Raylib.GetMousePosition()}", 200, 400, 18, Color.RayWhite);
+                //Raylib.DrawText($"Status: {statusModule.GetPosition}", 200, 300, 18, Color.White);
+                //Raylib.DrawText($"Tabbed: {tabbedView.GetPosition}", 200, 350, 18, Color.White);
+
+                //_mousePos = Raylib.GetMousePosition().ToString();
+                //Raylib.DrawText($"Mouse: {_mousePos}", 200, 400, 18, Color.RayWhite);
                 //Raylib.DrawText("Time: " + TIME.ToString(), 200, 450, 18, Color.RayWhite);
                 //Raylib.DrawText("FPS: " + Raylib.GetFrameTime(), 200, 500, 18, Color.RayWhite);
 
-                //TIME += Raylib.GetFrameTime();
 
-                var _indexes = tabbedView.GetIndexes;
-
-                Raylib.DrawText($"({_indexes.Item1}, {_indexes.Item2})", 200, 250, 18, Color.RayWhite);
-
-
-
-
-                //entity.AttemptDraw();
-
-                //Raylib.DrawRectangle(0, 0, 720, 250, Color.Black);
-
-
-                //Raylib.DrawText("Hello, world!", 12, 12, 20, Color.Red);
-
-                //Raylib.DrawFPS(0, 0);
-
-                // Draws scanlines to the screen with better gradient.
-                /*
-                for (int i = 0; i < Raylib.GetScreenHeight(); i += 3)
-                {
-                    Raylib.DrawLine(0, i, Raylib.GetScreenWidth(), i, new Color(0, 0, 0, 30));
-                    Raylib.DrawLine(0, i - 2, Raylib.GetScreenWidth(), i, new Color(0, 0, 0, 25));
-                }
-                */
 
                 Raylib.EndDrawing();
 
@@ -344,10 +393,10 @@ namespace Pipboy2K
         public static Settings Settings;
         public static UIManager UI;
 
-        public static void Init(Settings settings, UIManager ui)
+        public static void Init(Settings settings)
         {
             Settings = settings;
-            UI = ui;
+            //UI = ui;
 
             ScreenBounds = new Vector2(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
         }
@@ -356,6 +405,8 @@ namespace Pipboy2K
         public static readonly Font RobotoRFont;
 
         public static readonly Color COLORGREEN = new Color(0, 238, 0);
+
+        public static float UIScalingFactor = 1.0f;
 
         private static Random random;
 
@@ -382,7 +433,7 @@ namespace Pipboy2K
                     _screenBounds = new Vector2(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
                 }
 
-                return _screenBounds;
+                return _screenBounds * UIScalingFactor;
             }
             set
             {

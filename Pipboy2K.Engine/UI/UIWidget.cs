@@ -1,11 +1,11 @@
 using Raylib_cs;
-using Pipboy2K.Engine.Core;
 using System.Numerics;
-using Pipboy2K.Util;
-using Lua;
 using System.Security.Cryptography.X509Certificates;
 
-namespace Pipboy2K.UI;
+using Pipboy2K.Engine.Core;
+using Pipboy2K.Engine.UI.Internal;
+
+namespace Pipboy2K.Engine.UI;
 
 public enum UIWidgetType
 {
@@ -266,7 +266,19 @@ public class LayoutStyleBuilder
     }
 }
 
+public struct LayoutStyleAbsolutes
+{
+    public float MinWidth = float.NaN;
+    public float MaxWidth = float.NaN;
 
+    public float MinHeight = float.NaN;
+    public float MaxHeight = float.NaN;
+
+    public LayoutStyleAbsolutes()
+    {
+
+    }
+}
 /*
  Born: TBD()
  GameLoop: Update() -> Invalidate() -> Paint()
@@ -283,13 +295,17 @@ public class LayoutStyleBuilder
 */
 public abstract class UIWidget
 {
-    public UIWidget? Parent { get; protected set; }
-    public List<UIWidget> Children { get; private set; }
+    public UIWidget? Parent { get; internal set; }
+    public List<UIWidget> Children { get; internal set; }
 
     public WidgetRenderer renderer;
     public LayoutStyle Layout;
 
-    //internal UIManager UI;
+    // Add absolutes that the widgets can set themselves. (E.g if a widget needs to draw with a width of 40px, there is no need to set it any higher.)
+    //public LayoutStyleAbsolutes LayoutAbsolute;
+
+    // Will be initialized by the main UIManager, or by the parent.
+    public UIManager UI { get; internal set; }
 
     #region Widget Defines
     public bool HasParent
@@ -367,9 +383,9 @@ public abstract class UIWidget
     // Area that the widget occupies, and is allowed to draw in.
     //public Raylib_cs.Rectangle _bounds;
 
-    public UIWidget(UIWidgetType widgetType = UIWidgetType.Static)
+    public UIWidget()
     {
-        this.WidgetType = widgetType;
+        this.WidgetType = UIWidgetType.Static;
         this.Layout = new LayoutStyle();
 
         this.renderer = new WidgetRenderer(this);
@@ -381,21 +397,47 @@ public abstract class UIWidget
         //Invalidate(this);
     }
 
+
+    public virtual void Initialize() { }
+
+    [Obsolete]
     public virtual void OnInvalidate() { }
 
     public virtual void ProcessEvent() { }
 
+    public virtual void OnStart() { }
+
     public virtual void Update() { }
 
-    public virtual void Paint() { }
+    protected virtual void OnDestroy() { }
+
+    /// <summary>
+    /// Will remove the widget as a child of the parent (if applicable), and will destory
+    /// </summary>
+    public void Destroy()
+    {
+        // Before or after removing references?
+        OnDestroy();
+
+        if (HasParent)
+            Parent!.Children.Remove(this);
+
+        if (HasChildren)
+            Children.ForEach(x => x.Destroy());
+
+    }
+
+    //public virtual void Paint() { }
 
     protected abstract void Draw(WidgetRenderer e, RenderTransform transform);
 
     public void AddChild(UIWidget widget)
     {
+        UI.AddWidget(widget, this);
         // Check for recursiveness or something..
-        widget.Parent = this;
-        Children.Add(widget);
+        //widget.Parent = this;
+        //widget.UI = this.UI;
+        //Children.Add(widget);
     }
 
     public void PaintFamily()

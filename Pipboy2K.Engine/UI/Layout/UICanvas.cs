@@ -1,15 +1,20 @@
-using Pipboy2K.UI.Widgets;
+//using Pipboy2K.UI.Widgets;
 
-namespace Pipboy2K.UI.Layout;
+namespace Pipboy2K.Engine.UI.Layout;
 
 //Testing something..
 public class UICanvas : UIWidget
 {
-    UIText text;
+    //UIText text;
 
     public UICanvas()
     {
-        text = new UIText("Yoo");
+       
+    }
+
+    public override void Initialize()
+    {
+        //text = new UIText() { Text = "YOOO" };
     }
 
     public override void OnInvalidate()
@@ -19,6 +24,6 @@ public class UICanvas : UIWidget
 
     protected override void Draw(WidgetRenderer e, RenderTransform transform)
     {
-        text.PaintFamily();
+        //text.PaintFamily();
     }
 }

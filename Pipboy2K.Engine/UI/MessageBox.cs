@@ -1,7 +1,8 @@
 using System.Numerics;
+using Pipboy2K.Engine.Core;
 using Raylib_cs;
 
-namespace Pipboy2K.UI.Widgets.Extra;
+namespace Pipboy2K.Engine.UI;
 
 public class MessageBox : UIWidget
 {
@@ -11,6 +12,8 @@ public class MessageBox : UIWidget
         Normal,
         FadeOut
     }
+
+    public static Random RDM = new Random();
 
     private float _seconds = 2.0f;
 
@@ -22,12 +25,15 @@ public class MessageBox : UIWidget
 
     private Color color;
     private string text;
+    private Font font;
 
-    private MessageBox(string text)
+    private MessageBox(string text, Font? font = null)
     {
         this.text = text;
 
         color = Raylib.Fade(refColor, 0.75f);
+
+        this.font = font.HasValue ? font.Value : Raylib.GetFontDefault();
     }
 
     public override void Update()
@@ -36,18 +42,17 @@ public class MessageBox : UIWidget
 
         if (_frameCounter >= _seconds)
         {
-            GS.UI.RemoveWidget(this);
+            UI.RemoveWidget(this);
         }
     }
 
     protected override void Draw(WidgetRenderer e, RenderTransform transform)
     {
         //e.DrawTextEx();
-        e.DrawTextEx(Raylib.GetFontDefault(), text, Vector2.Zero, 16f, 1f, color);
-
+        e.DrawText(font, text, Vector2.Zero, 16f, 1f, color);
     }
 
-    public static void Show(string text, LayoutStyle? layout = null)
+    public static void Show(string text, UIManager ui, LayoutStyle? layout = null)
     {
         var _msg = new MessageBox(text);
 
@@ -55,9 +60,11 @@ public class MessageBox : UIWidget
             _msg.Layout = layout.Value;
         else
              _msg.Layout = LayoutStyleBuilder.Begin()
-                .PositionAnchorPoint(new (GS.GetRandom.Next(0, 1000) / 1000.0f, GS.GetRandom.Next(0, 1000) / 1000.0f), new (0.5f, 0.5f))
+                .PositionAnchorPoint(new (RDM.Next(0, 1000) / 1000.0f, RDM.Next(0, 1000) / 1000.0f), new (0.5f, 0.5f))
             .Build();
 
-        GS.UI.AddWidget(_msg);
+        ui.AddWidget(_msg);
+
+        //UI.AddWidget(_msg);
     }
 }

@@ -1,7 +1,7 @@
 using System.Numerics;
 using Raylib_cs;
 
-namespace Pipboy2K.Util;
+namespace Pipboy2K.Engine.UI.Util;
 
 public static class UIUtil
 {
